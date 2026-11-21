@@ -42,7 +42,14 @@ h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--mut
 .bar-row .top{display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:3px;font-variant-numeric:tabular-nums}
 .track{height:9px;border-radius:9px;background:var(--accent2);overflow:hidden}
 .fill{height:100%;border-radius:9px;background:var(--accent);transition:width .3s}
-.fill.w{background:var(--water)}.fill.g{background:var(--good)}
+.fill.w{background:var(--water)}.fill.g{background:var(--good)}.fill.o{background:var(--warn)}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin:8px 0;cursor:pointer;font-weight:400}
+.opt input{width:auto;margin-top:4px;accent-color:var(--accent)}
+.opt b{display:block}.opt small{color:var(--muted)}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent2)}
+.big{font-size:2.4rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.steps{color:var(--muted);font-size:.85rem;margin:0 0 6px}
+.chk{display:flex;align-items:center;gap:8px;font-weight:400}.chk input{width:auto}
 .btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:8px 12px;cursor:pointer}
 button.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
@@ -93,24 +100,26 @@ function r0(n){return Math.round(n)}
 function r1(n){return Math.round(n*10)/10}
 
 /* ---------- food data: approximate values per 100 g (typical generic foods) ---------- */
+/* [name, kcal, protein, carbs, fat, serving g, fibre g, sugar g, sodium mg, calcium mg, iron mg, potassium mg, vitamin C mg] per 100 g */
 var FOODS=[
-["Apple",52,0.3,14,0.2,180],["Banana",89,1.1,23,0.3,120],["Orange",47,0.9,12,0.1,150],["Strawberries",32,0.7,8,0.3,150],["Grapes",69,0.7,18,0.2,100],["Blueberries",57,0.7,14,0.3,100],
-["Avocado",160,2,9,15,100],["Tomato",18,0.9,3.9,0.2,120],["Cucumber",15,0.7,3.6,0.1,100],["Carrot",41,0.9,10,0.2,80],["Broccoli",34,2.8,7,0.4,90],["Spinach",23,2.9,3.6,0.4,60],["Potato, boiled",87,1.9,20,0.1,180],["Sweet potato, baked",90,2,21,0.2,150],["Onion",40,1.1,9,0.1,80],["Mixed salad leaves",17,1.3,2.9,0.2,60],
-["White rice, cooked",130,2.7,28,0.3,180],["Brown rice, cooked",123,2.7,26,1,180],["Pasta, cooked",158,5.8,31,0.9,200],["Bulgur, cooked",83,3,19,0.2,180],["Couscous, cooked",112,3.8,23,0.2,180],["Oats, dry",389,17,66,7,40],["Bread, white",265,9,49,3.2,40],["Bread, wholemeal",247,13,41,3.4,40],["Turkish pide / flatbread",275,9,53,2.5,80],["Cornflakes",357,7,84,0.4,30],
-["Chicken breast, cooked",165,31,0,3.6,120],["Chicken thigh, cooked",209,26,0,11,100],["Beef mince, 10% fat, cooked",217,26,0,12,100],["Lamb, cooked",294,25,0,21,100],["Salmon, cooked",208,20,0,13,120],["Tuna, canned in water",116,26,0,1,100],["White fish, cooked",105,23,0,1,120],["Egg, whole",143,13,1,9.5,50],["Bacon, grilled",417,12,1,41,25],["Sausage, grilled",300,14,3,26,60],["Doner kebab meat",250,18,3,18,120],
-["Milk, semi-skimmed",47,3.6,4.8,1.7,200],["Whole milk",61,3.2,4.8,3.3,200],["Yoghurt, plain",61,3.5,4.7,3.3,150],["Greek yoghurt",97,9,4,5,150],["Ayran / buttermilk",40,2,3,2,250],["Cheddar cheese",403,25,1.3,33,30],["White cheese (beyaz peynir)",264,14,1.5,22,40],["Mozzarella",280,22,2.2,22,40],["Butter",717,0.9,0.1,81,10],["Cream cheese",342,6,4,34,30],
-["Lentils, cooked",116,9,20,0.4,150],["Chickpeas, cooked",164,8.9,27,2.6,150],["Kidney beans, cooked",127,8.7,23,0.5,150],["Hummus",166,8,14,10,50],["Tofu",76,8,1.9,4.8,100],
-["Almonds",579,21,22,50,30],["Walnuts",654,15,14,65,30],["Peanut butter",588,25,20,50,20],["Hazelnuts",628,15,17,61,30],["Olive oil",884,0,0,100,10],["Honey",304,0.3,82,0,20],["Sugar",387,0,100,0,5],["Dark chocolate",546,5,61,31,25],["Milk chocolate",535,8,59,30,25],["Biscuit",480,6,70,20,25],["Crisps",536,6,53,34,30],
-["Baklava",430,6,45,25,60],["Pizza, margherita slice",250,11,31,9,110],["Burger, beef with bun",260,13,24,12,200],["Chips / fries",312,3.4,41,15,120],["Falafel",333,13,32,18,60],
-["Cola",42,0,10.6,0,330],["Orange juice",45,0.7,10,0.2,200],["Coffee, black",2,0.1,0,0,200],["Tea, no sugar",1,0,0.3,0,250],["Beer",43,0.5,3.6,0,330],["Wine, red",85,0.1,2.6,0,150]
-].map(function(a){return{name:a[0],kcal:a[1],p:a[2],c:a[3],f:a[4],serving:a[5]}});
+["Apple",52,0.3,14,0.2,180,2.4,10.4,1,6,0.1,107,4.6],["Banana",89,1.1,23,0.3,120,2.6,12.2,1,5,0.3,358,8.7],["Orange",47,0.9,12,0.1,150,2.4,9.4,0,40,0.1,181,53],["Strawberries",32,0.7,8,0.3,150,2,4.9,1,16,0.4,153,59],["Grapes",69,0.7,18,0.2,100,0.9,15.5,2,10,0.4,191,3],["Blueberries",57,0.7,14,0.3,100,2.4,10,1,6,0.3,77,10],
+["Avocado",160,2,9,15,100,6.7,0.7,7,12,0.6,485,10],["Tomato",18,0.9,3.9,0.2,120,1.2,2.6,5,10,0.3,237,14],["Cucumber",15,0.7,3.6,0.1,100,0.5,1.7,2,16,0.3,147,3],["Carrot",41,0.9,10,0.2,80,2.8,4.7,69,33,0.3,320,6],["Broccoli",34,2.8,7,0.4,90,2.6,1.7,33,47,0.7,316,89],["Spinach",23,2.9,3.6,0.4,60,2.2,0.4,79,99,2.7,558,28],["Potato, boiled",87,1.9,20,0.1,180,1.8,0.9,4,8,0.3,328,13],["Sweet potato, baked",90,2,21,0.2,150,3.3,6.5,36,38,0.7,475,20],["Onion",40,1.1,9,0.1,80,1.7,4.2,4,23,0.2,146,7],["Mixed salad leaves",17,1.3,2.9,0.2,60,1.8,0.8,28,36,0.9,194,9],
+["White rice, cooked",130,2.7,28,0.3,180,0.4,0.1,1,10,0.2,35,0],["Brown rice, cooked",123,2.7,26,1,180,1.8,0.4,5,10,0.5,86,0],["Pasta, cooked",158,5.8,31,0.9,200,1.8,0.6,1,7,1.3,44,0],["Bulgur, cooked",83,3,19,0.2,180,4.5,0.1,5,10,1,68,0],["Couscous, cooked",112,3.8,23,0.2,180,1.4,0.1,5,8,0.4,58,0],["Oats, dry",389,17,66,7,40,10.6,1,2,54,4.7,429,0],["Bread, white",265,9,49,3.2,40,2.7,5,491,144,3.6,115,0],["Bread, wholemeal",247,13,41,3.4,40,6,4.5,450,107,2.5,250,0],["Turkish pide / flatbread",275,9,53,2.5,80,2.5,3,450,100,2.5,120,0],["Cornflakes",357,7,84,0.4,30,3.3,8,730,3,3,100,0],
+["Chicken breast, cooked",165,31,0,3.6,120,0,0,74,15,1,256,0],["Chicken thigh, cooked",209,26,0,11,100,0,0,95,12,1.3,230,0],["Beef mince, 10% fat, cooked",217,26,0,12,100,0,0,72,18,2.6,318,0],["Lamb, cooked",294,25,0,21,100,0,0,72,17,1.9,310,0],["Salmon, cooked",208,20,0,13,120,0,0,59,12,0.8,384,0],["Tuna, canned in water",116,26,0,1,100,0,0,247,10,1.3,237,0],["White fish, cooked",105,23,0,1,120,0,0,78,16,0.4,430,0],["Egg, whole",143,13,1,9.5,50,0,0.4,142,56,1.8,138,0],["Bacon, grilled",417,12,1,41,25,0,0,1717,11,1.2,565,0],["Sausage, grilled",300,14,3,26,60,0.7,1,900,40,1.5,250,0],["Doner kebab meat",250,18,3,18,120,0.5,1,700,20,2.2,260,0],
+["Milk, semi-skimmed",47,3.6,4.8,1.7,200,0,4.8,44,120,0,150,0],["Whole milk",61,3.2,4.8,3.3,200,0,5,43,113,0,132,0],["Yoghurt, plain",61,3.5,4.7,3.3,150,0,4.7,46,121,0.1,155,0.5],["Greek yoghurt",97,9,4,5,150,0,4,36,100,0,141,0],["Ayran / buttermilk",40,2,3,2,250,0,3,45,70,0,90,0],["Cheddar cheese",403,25,1.3,33,30,0,0.5,621,720,0.7,98,0],["White cheese (beyaz peynir)",264,14,1.5,22,40,0,1,1116,493,0.2,95,0],["Mozzarella",280,22,2.2,22,40,0,1,627,505,0.4,76,0],["Butter",717,0.9,0.1,81,10,0,0.1,11,24,0,24,0],["Cream cheese",342,6,4,34,30,0,3.2,321,98,0.1,138,0],
+["Lentils, cooked",116,9,20,0.4,150,7.9,1.8,2,19,3.3,369,1.5],["Chickpeas, cooked",164,8.9,27,2.6,150,7.6,4.8,7,49,2.9,291,1.3],["Kidney beans, cooked",127,8.7,23,0.5,150,6.4,0.3,1,28,2.9,405,1.2],["Hummus",166,8,14,10,50,6,0.3,380,38,2.4,228,0],["Tofu",76,8,1.9,4.8,100,0.3,0.6,7,350,5.4,121,0.1],
+["Almonds",579,21,22,50,30,12.5,4,1,269,3.7,733,0],["Walnuts",654,15,14,65,30,6.7,2.6,2,98,2.9,441,1.3],["Peanut butter",588,25,20,50,20,6,9,400,49,1.9,649,0],["Hazelnuts",628,15,17,61,30,9.7,4.3,0,114,4.7,680,6.3],["Olive oil",884,0,0,100,10,0,0,2,1,0.6,1,0],["Honey",304,0.3,82,0,20,0.2,82,4,6,0.4,52,0.5],["Sugar",387,0,100,0,5,0,100,1,1,0,2,0],["Dark chocolate",546,5,61,31,25,11,24,20,73,12,715,0],["Milk chocolate",535,8,59,30,25,3.4,52,79,189,2.3,372,0],["Biscuit",480,6,70,20,25,2.5,25,400,40,2,150,0],["Crisps",536,6,53,34,30,4.4,0.5,525,24,1.3,1275,16],
+["Baklava",430,6,45,25,60,2.5,25,150,50,1.5,150,0],["Pizza, margherita slice",250,11,31,9,110,2.3,3.6,598,201,2,172,1],["Burger, beef with bun",260,13,24,12,200,1.4,5,396,90,2.5,200,1],["Chips / fries",312,3.4,41,15,120,3.8,0.5,210,10,0.8,579,10],["Falafel",333,13,32,18,60,4.9,0.5,294,54,3.4,585,1],
+["Cola",42,0,10.6,0,330,0,10.6,4,2,0,2,0],["Orange juice",45,0.7,10,0.2,200,0.2,8.4,1,11,0.2,200,50],["Coffee, black",2,0.1,0,0,200,0,0,2,2,0,49,0],["Tea, no sugar",1,0,0.3,0,250,0,0,3,0,0,18,0],["Beer",43,0.5,3.6,0,330,0,0,4,4,0,27,0],["Wine, red",85,0.1,2.6,0,150,0,0.6,4,8,0.5,127,0]
+].map(function(a){return{name:a[0],kcal:a[1],p:a[2],c:a[3],f:a[4],serving:a[5],fib:a[6],sug:a[7],na:a[8],ca:a[9],fe:a[10],k:a[11],vc:a[12]}});
 
 var EXERCISES=[["Walking, easy",3.5],["Walking, brisk",4.3],["Running, 8 km/h",8.3],["Running, 10 km/h",9.8],["Cycling, leisure",5.8],["Cycling, fast",8.5],["Swimming",6],["Strength training",5],["HIIT / circuit",8],["Yoga",2.5],["Pilates",3],["Dancing",5],["Hiking",6],["Football",7],["Basketball",6.5],["Tennis",7],["Elliptical",5],["Rowing",7],["Housework",3]];
+var ACT=[["Mostly sitting","Desk job or student, little walking",1.2,5000],["Lightly active","On your feet part of the day, some walking",1.375,7500],["Active","Mostly on your feet, lots of walking",1.55,10000],["Very active","Physical job or heavy daily movement",1.725,12500]];
 var MEALS=["Breakfast","Lunch","Dinner","Snacks"];
 
 /* ---------- state ---------- */
 var S=load();
-function def(){return{profile:{sex:"f",age:30,height:170,weight:70,act:0,goal:"maintain",pace:0.25,water:2000,steps:8000},days:{},weights:{},custom:[],theme:"auto"}}
+function def(){return{profile:{done:false,sex:"f",age:30,height:170,weight:70,act:0,goal:"maintain",target:0,pace:0.25,preg:false},days:{},weights:{},custom:[],theme:"auto"}}
 function load(){var d=def();try{var s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&typeof s==="object"){for(var k in d)if(s[k]!==undefined)d[k]=s[k];d.profile=Object.assign(def().profile,s.profile||{})}}catch(e){}return d}
 var saveT;function save(){clearTimeout(saveT);saveT=setTimeout(function(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast("Could not save. Storage may be full or blocked.")}},120)}
 var ids=0;function uid(){return Date.now().toString(36)+(ids++)}
@@ -124,20 +133,33 @@ function toast(m){var t=$("#toast");if(!t){t=document.createElement("div");t.id=
 
 /* ---------- calculations ---------- */
 function weightNow(){var ks=Object.keys(S.weights).sort();return ks.length?S.weights[ks[ks.length-1]]:S.profile.weight}
-function bmr(){var p=S.profile,w=weightNow();return 10*w+6.25*p.height-5*p.age+(p.sex==="m"?5:-161)}
-function budget(){
-  var p=S.profile,tdee=bmr()*1.2,adj=0;      /* baseline 1.2: exercise and steps are added separately */
-  if(p.goal==="lose")adj=-p.pace*7700/7;else if(p.goal==="gain")adj=p.pace*7700/7;
-  var floor=p.sex==="m"?1500:1200,b=tdee+adj,limited=false;
-  if(b<floor){b=floor;limited=true}
-  return{kcal:r0(b),limited:limited,floor:floor}
+function bmiOf(w,h){return w/Math.pow(h/100,2)}
+function bmrOf(P,w){return 10*w+6.25*P.height-5*P.age+(P.sex==="m"?5:-161)}
+/* Personal plan: calories, macros, water, steps and micronutrient guides from the profile */
+function planFor(P,w){
+  var notes=[],goal=P.goal,m=ACT[P.act]||ACT[0];
+  if(P.age<18&&goal!=="maintain"){goal="maintain";notes.push("Under 18: Vitalog only gives maintenance calories. Growing bodies need advice from a doctor or dietitian.")}
+  if(P.preg&&goal!=="maintain"){goal="maintain";notes.push("Pregnant or breastfeeding: please follow your midwife or doctor's advice. This plan shows maintenance calories only.")}
+  if(goal==="lose"&&bmiOf(w,P.height)<18.5){goal="maintain";notes.push("Your BMI is below 18.5, so weight loss is not recommended. Maintenance calories are shown. Please speak to a doctor if you are worried about your weight.")}
+  var bmr=bmrOf(P,w),tdee=bmr*m[2],adj=goal==="lose"?-P.pace*7700/7:goal==="gain"?P.pace*7700/7:0;
+  var floor=P.sex==="m"?1500:1200,k=tdee+adj,limited=false;
+  if(goal!=="maintain"&&k<floor){k=floor;limited=true;notes.push("Your goal would go below "+floor+" kcal a day, so the budget is held at that minimum.")}
+  k=r0(k);
+  var p=Math.min({lose:1.8,maintain:1.4,gain:1.6}[goal]*w,0.30*k/4),f=0.27*k/9,c=Math.max(0,(k-p*4-f*9)/4);
+  var water=Math.max(1500,Math.min(3500,Math.round(w*35/50)*50+(P.act>=3?500:0)));
+  var sex=P.sex,age=P.age;
+  return{goal:goal,notes:notes,bmr:r0(bmr),tdee:r0(tdee),adj:r0(adj),kcal:k,p:r0(p),c:r0(c),f:r0(f),water:water,steps:m[3],limited:limited,
+    micro:{fib:{n:"Fibre",u:"g",t:age<16?25:30},sug:{n:"Sugars",u:"g",t:90,limit:1},na:{n:"Sodium",u:"mg",t:2400,limit:1},ca:{n:"Calcium",u:"mg",t:age<19?(sex==="m"?1000:800):700},fe:{n:"Iron",u:"mg",t:(sex==="f"&&age<=50)?14.8:(age<19?11.3:8.7)},k:{n:"Potassium",u:"mg",t:3500},vc:{n:"Vitamin C",u:"mg",t:40}},
+    guides:[["Vitamin D","10 µg","Oily fish, eggs, fortified foods. In the UK a supplement is advised in autumn and winter."],["Vitamin B12","1.5 µg","Meat, fish, dairy, eggs. Vegans need fortified foods or a supplement."],["Folate","200 µg","Leafy greens, legumes. 400 µg supplement is advised when trying for or during early pregnancy."],["Magnesium",(sex==="m"?300:270)+" mg","Nuts, seeds, whole grains, legumes."],["Zinc",(sex==="m"?"9.5":"7")+" mg","Meat, shellfish, legumes, seeds."],["Vitamin A",(sex==="m"?700:600)+" µg","Carrots, sweet potato, eggs, dairy."],["Iodine","140 µg","Fish, dairy, iodised salt."]]}
 }
+function plan(){return planFor(S.profile,weightNow())}
+function budget(){return plan()}
 function stepKcal(steps){return steps*0.00057*weightNow()}
 function exKcal(ex){return ex.reduce(function(a,e){return a+(+e.kcal||0)},0)}
 function totals(s){
-  var d=peek(s),t={kcal:0,p:0,c:0,f:0};
-  d.food.forEach(function(x){t.kcal+=x.kcal;t.p+=x.p;t.c+=x.c;t.f+=x.f});
-  t.burn=exKcal(d.ex)+stepKcal(d.steps||0);
+  var d=peek(s),t={kcal:0,p:0,c:0,f:0,fib:0,sug:0,na:0,ca:0,fe:0,k:0,vc:0};
+  d.food.forEach(function(x){for(var q in t)t[q]+=(+x[q]||0)});
+  t.burn=exKcal(d.ex);
   return t
 }
 
@@ -159,19 +181,20 @@ function ring(pct,color,over){
   var R=60,C=2*Math.PI*R,p=Math.max(0,Math.min(1,pct)),col=over?"var(--warn)":color;
   return'<svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="'+R+'" fill="none" stroke="var(--accent2)" stroke-width="14"/><circle cx="75" cy="75" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="14" stroke-linecap="round" stroke-dasharray="'+(C*p).toFixed(1)+" "+C.toFixed(1)+'"/></svg>'
 }
-function bar(label,val,goal,cls,unit){
-  var pct=goal>0?Math.min(100,val/goal*100):0;
-  return'<div class="bar-row"><div class="top"><span>'+label+'</span><span>'+r0(val)+" / "+r0(goal)+" "+unit+'</span></div><div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="'+r0(goal)+'" aria-valuenow="'+r0(val)+'" aria-label="'+label+'"><div class="fill '+(cls||"")+'" style="width:'+pct+'%"></div></div></div>'
+function bar(label,val,goal,cls,unit,limit){
+  var pct=goal>0?Math.min(100,val/goal*100):0,over=limit&&val>goal;
+  return'<div class="bar-row"><div class="top"><span>'+label+(over?' <b class="warn">over limit</b>':"")+'</span><span>'+(unit==="g"||unit==="ml"||unit==="steps"||unit==="mg"?r0(val):r1(val))+" / "+r0(goal)+" "+unit+'</span></div><div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="'+r0(goal)+'" aria-valuenow="'+r0(val)+'" aria-label="'+label+'"><div class="fill '+(over?"o":cls||"")+'" style="width:'+pct+'%"></div></div></div>'
 }
 function viewToday(){
-  var d=peek(cur),t=totals(cur),b=budget(),left=b.kcal-t.kcal+t.burn,P=S.profile;
-  var gp=b.kcal*0.25/4,gc=b.kcal*0.45/4,gf=b.kcal*0.30/9;
-  return'<section class="card"><h3>Calories</h3><div class="ringrow"><div class="ring">'+ring(t.kcal/(b.kcal+t.burn),"var(--accent)",left<0)+'<div class="c"><b>'+r0(Math.abs(left))+'</b><span>'+(left>=0?"kcal left":"kcal over")+'</span></div></div>'+
-  '<div class="stats"><div><span>Daily budget</span><b>'+b.kcal+'</b></div><div><span>Food eaten</span><b>'+r0(t.kcal)+'</b></div><div><span>Exercise + steps</span><b>+'+r0(t.burn)+'</b></div><div><span>Remaining</span><b>'+r0(left)+'</b></div></div></div>'+
-  (b.limited?'<p class="note warn" style="margin-top:10px">Your goal would go below '+b.floor+' kcal a day, so the budget is held at that minimum. Very low intakes are not recommended without medical supervision.</p>':"")+'</section>'+
-  '<section class="card"><h3>Nutrition</h3><div class="bars">'+bar("Protein",t.p,gp,"g","g")+bar("Carbohydrate",t.c,gc,"","g")+bar("Fat",t.f,gf,"w","g")+'</div><p class="muted" style="margin:10px 0 0">Targets: about 25% protein, 45% carbohydrate, 30% fat of your budget.</p></section>'+
-  '<div class="grid2"><section class="card"><h3>Water</h3>'+bar("Water",d.water||0,P.water,"w","ml")+'<div class="btnrow"><button data-act="water" data-v="250">+250 ml</button><button data-act="water" data-v="500">+500 ml</button><button data-act="water" data-v="-250">−250 ml</button></div></section>'+
-  '<section class="card"><h3>Steps</h3>'+bar("Steps",d.steps||0,P.steps,"g","steps")+'<form data-form="steps" class="btnrow"><input type="number" min="0" max="100000" inputmode="numeric" id="stepsIn" placeholder="Total steps today" aria-label="Total steps" style="flex:1;min-width:120px" value="'+(d.steps||"")+'"><button class="pri">Save</button></form><p class="muted" style="margin:8px 0 0">Enter the count from your phone or watch. About '+r0(stepKcal(d.steps||0))+' kcal.</p></section></div>'+
+  var d=peek(cur),t=totals(cur),b=plan(),left=b.kcal-t.kcal+t.burn,G={lose:"Lose weight",maintain:"Maintain weight",gain:"Gain weight"}[b.goal];
+  var mi=Object.keys(b.micro).map(function(k){var m=b.micro[k];return bar(m.n+(m.limit?" (limit)":""),t[k],m.t,"g",m.u,m.limit)}).join("");
+  return'<section class="card"><h3>Calories · '+G+'</h3><div class="ringrow"><div class="ring">'+ring(t.kcal/(b.kcal+t.burn),"var(--accent)",left<0)+'<div class="c"><b>'+r0(Math.abs(left))+'</b><span>'+(left>=0?"kcal left":"kcal over")+'</span></div></div>'+
+  '<div class="stats"><div><span>Your daily budget</span><b>'+b.kcal+'</b></div><div><span>Food eaten</span><b>'+r0(t.kcal)+'</b></div><div><span>Exercise</span><b>+'+r0(t.burn)+'</b></div><div><span>Remaining</span><b>'+r0(left)+'</b></div></div></div>'+
+  b.notes.map(function(n){return'<p class="note warn" style="margin-top:10px">'+esc(n)+"</p>"}).join("")+'</section>'+
+  '<section class="card"><h3>Macronutrients</h3><div class="bars">'+bar("Protein",t.p,b.p,"g","g")+bar("Carbohydrate",t.c,b.c,"","g")+bar("Fat",t.f,b.f,"w","g")+'</div><p class="muted" style="margin:10px 0 0">Targets are set for you from your goal, weight and activity.</p></section>'+
+  '<section class="card"><h3>Micronutrients</h3><div class="bars">'+mi+'</div><p class="muted" style="margin:10px 0 0">Based on UK reference intakes for your age and sex. See Profile for vitamins and minerals that are not tracked here.</p></section>'+
+  '<div class="grid2"><section class="card"><h3>Water</h3>'+bar("Water",d.water||0,b.water,"w","ml")+'<div class="btnrow"><button data-act="water" data-v="250">+250 ml</button><button data-act="water" data-v="500">+500 ml</button><button data-act="water" data-v="-250">−250 ml</button></div></section>'+
+  '<section class="card"><h3>Steps</h3>'+bar("Steps",d.steps||0,b.steps,"g","steps")+'<form data-form="steps" class="btnrow"><input type="number" min="0" max="100000" inputmode="numeric" id="stepsIn" placeholder="Total steps today" aria-label="Total steps" style="flex:1;min-width:120px" value="'+(d.steps||"")+'"><button class="pri">Save</button></form><p class="muted" style="margin:8px 0 0">About '+r0(stepKcal(d.steps||0))+' kcal. Walking is already included in your activity level, so it is not added to your budget.</p></section></div>'+
   '<section class="card"><h3>Meals today</h3>'+(d.food.length?MEALS.map(function(m){var f=d.food.filter(function(x){return x.meal===m});if(!f.length)return"";return'<p class="muted" style="margin:6px 0 0"><b>'+m+"</b> · "+r0(f.reduce(function(a,x){return a+x.kcal},0))+" kcal</p>"}).join(""):'<p class="muted" style="margin:0">Nothing logged yet. Open the Food tab to add your first meal.</p>')+'</section>'
 }
 var foodQuery="",foodPick=null;
@@ -184,7 +207,7 @@ function viewFood(){
     var f=all.filter(function(x){return x.name===foodPick})[0];
     if(f)h+='<form data-form="addfood" style="margin-top:12px"><b>'+esc(f.name)+'</b><div class="row"><div><label for="g">Amount (g or ml)</label><input id="g" type="number" min="1" max="5000" step="1" value="'+f.serving+'" inputmode="decimal"></div><div><label for="m">Meal</label><select id="m">'+MEALS.map(function(m){return"<option"+(m===guessMeal()?" selected":"")+">"+m+"</option>"}).join("")+'</select></div></div><div class="btnrow"><button class="pri">Add to diary</button><button type="button" data-act="cancelpick">Cancel</button></div></form>'
   }
-  h+='<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600">Add a custom food</summary><form data-form="custom"><label for="cn">Name</label><input id="cn" required maxlength="60"><div class="row"><div><label for="ck">kcal per 100 g</label><input id="ck" type="number" min="0" max="1000" step="any" required></div><div><label for="cp">Protein g</label><input id="cp" type="number" min="0" step="any" value="0"></div><div><label for="cc">Carbs g</label><input id="cc" type="number" min="0" step="any" value="0"></div><div><label for="cf">Fat g</label><input id="cf" type="number" min="0" step="any" value="0"></div></div><div class="row"><div><label for="cs">Usual serving (g)</label><input id="cs" type="number" min="1" value="100"></div></div><div class="btnrow"><button class="pri">Save food</button></div></form></details></section>';
+  h+='<details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600">Add a custom food</summary><form data-form="custom"><label for="cn">Name</label><input id="cn" required maxlength="60"><div class="row"><div><label for="ck">kcal per 100 g</label><input id="ck" type="number" min="0" max="1000" step="any" required></div><div><label for="cp">Protein g</label><input id="cp" type="number" min="0" step="any" value="0"></div><div><label for="cc">Carbs g</label><input id="cc" type="number" min="0" step="any" value="0"></div><div><label for="cf">Fat g</label><input id="cf" type="number" min="0" step="any" value="0"></div></div><div class="row"><div><label for="cfi">Fibre g</label><input id="cfi" type="number" min="0" step="any" value="0"></div><div><label for="csu">Sugars g</label><input id="csu" type="number" min="0" step="any" value="0"></div><div><label for="cna">Sodium mg</label><input id="cna" type="number" min="0" step="any" value="0"></div></div><div class="row"><div><label for="cs">Usual serving (g)</label><input id="cs" type="number" min="1" value="100"></div></div><div class="btnrow"><button class="pri">Save food</button></div></form></details></section>';
   MEALS.forEach(function(m){
     var f=d.food.filter(function(x){return x.meal===m});
     h+='<section class="card"><h3>'+m+(f.length?" · "+r0(f.reduce(function(a,x){return a+x.kcal},0))+" kcal":"")+"</h3>"+(f.length?'<ul class="list">'+f.map(function(x){return'<li><div class="n">'+esc(x.name)+"<small>"+r0(x.g)+" g · P "+r1(x.p)+" · C "+r1(x.c)+" · F "+r1(x.f)+'</small></div><span class="k">'+r0(x.kcal)+'</span><button class="del" data-del-food="'+x.id+'" aria-label="Delete '+esc(x.name)+'">✕</button></li>'}).join("")+"</ul>":'<p class="muted" style="margin:0">Empty</p>')+"</section>"
@@ -197,7 +220,7 @@ function viewMove(){
   var h='<section class="card"><h2>Log exercise</h2><form data-form="ex"><label for="et">Activity</label><select id="et">'+EXERCISES.map(function(e,i){return'<option value="'+i+'">'+e[0]+"</option>"}).join("")+'</select><div class="row"><div><label for="em">Minutes</label><input id="em" type="number" min="1" max="600" value="30" inputmode="numeric"></div></div><p class="muted" id="epre" style="margin:8px 0 0"></p><div class="btnrow"><button class="pri">Add exercise</button></div></form><p class="note" style="margin-top:12px">Calories use the MET method with your latest weight ('+r1(weightNow())+' kg). They are estimates.</p></section>';
   h+='<section class="card"><h3>Today\'s exercise · '+r0(exKcal(d.ex))+' kcal</h3>'+(d.ex.length?'<ul class="list">'+d.ex.map(function(x){return'<li><div class="n">'+esc(x.name)+"<small>"+x.min+' min</small></div><span class="k">'+r0(x.kcal)+'</span><button class="del" data-del-ex="'+x.id+'" aria-label="Delete '+esc(x.name)+'">✕</button></li>'}).join("")+"</ul>":'<p class="muted" style="margin:0">No exercise logged for this day.</p>')+"</section>";
   var wk=[];for(var i=6;i>=0;i--){var s=shift(cur,-i),dd=peek(s);wk.push({s:s,steps:dd.steps||0,ex:exKcal(dd.ex)})}
-  h+='<section class="card"><h3>Last 7 days · steps</h3>'+barChart(wk.map(function(x){return{l:x.s.slice(8),v:x.steps}}),P.steps,"steps")+"</section>";
+  h+='<section class="card"><h3>Last 7 days · steps</h3>'+barChart(wk.map(function(x){return{l:x.s.slice(8),v:x.steps}}),plan().steps,"steps")+"</section>";
   return h
 }
 function barChart(data,goal,unit){
@@ -214,7 +237,7 @@ function viewWeight(){
   var h='<section class="card"><h2>Log weight</h2><form data-form="weight"><div class="row"><div><label for="wv">Weight (kg) on '+cur+'</label><input id="wv" type="number" step="0.1" min="20" max="400" inputmode="decimal" value="'+(S.weights[cur]||"")+'" required></div></div><div class="btnrow"><button class="pri">Save weight</button></div></form></section>';
   if(ks.length){
     var last=S.weights[ks[ks.length-1]],first=S.weights[ks[0]],hm=P.height/100,bmi=last/(hm*hm);
-    h+='<section class="card"><h3>Progress</h3><div class="stats"><div><span>Latest</span><b>'+r1(last)+' kg</b></div><div><span>Change since first entry</span><b>'+(last-first>0?"+":"")+r1(last-first)+' kg</b></div><div><span>BMI</span><b>'+r1(bmi)+'</b></div></div><p class="muted" style="margin:8px 0 0">BMI is a rough population measure. It does not account for muscle, age or body shape.</p>'+lineChart(ks.slice(-60))+"</section>";
+    h+='<section class="card"><h3>Progress</h3><div class="stats"><div><span>Latest</span><b>'+r1(last)+' kg</b></div><div><span>Change since first entry</span><b>'+(last-first>0?"+":"")+r1(last-first)+' kg</b></div><div><span>BMI</span><b>'+r1(bmi)+'</b></div>'+(P.goal!=="maintain"&&P.target?'<div><span>Target</span><b>'+r1(P.target)+' kg ('+r1(Math.abs(P.target-last))+' kg to go)</b></div>':"")+'</div><p class="muted" style="margin:8px 0 0">BMI is a rough population measure. It does not account for muscle, age or body shape.</p>'+lineChart(ks.slice(-60))+"</section>";
     h+='<section class="card"><h3>History</h3><ul class="list">'+ks.slice().reverse().slice(0,20).map(function(k){return'<li><div class="n">'+k+'</div><span class="k">'+r1(S.weights[k])+' kg</span><button class="del" data-del-w="'+k+'" aria-label="Delete weight on '+k+'">✕</button></li>'}).join("")+"</ul></section>"
   }else h+='<section class="card"><p class="muted" style="margin:0">No weights yet. Enter your first one above to see your chart.</p></section>';
   return h
@@ -230,20 +253,56 @@ function lineChart(ks){
   svg+='<text x="'+L+'" y="'+(H-6)+'">'+ks[0]+'</text><text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end">'+ks[ks.length-1]+"</text>";
   return svg+"</svg>"
 }
+var wiz=null;
+function startWizard(edit){var P=S.profile;wiz={step:1,edit:!!edit,d:Object.assign({},P,{weight:r1(weightNow())})}}
+function radio(name,val,cur,title,sub){return'<label class="opt"><input type="radio" name="'+name+'" value="'+val+'"'+(String(cur)===String(val)?" checked":"")+'><span><b>'+title+"</b>"+(sub?"<small>"+sub+"</small>":"")+"</span></label>"}
+function viewWizard(){
+  var d=wiz.d,st=wiz.step,h='<section class="card"><p class="steps">'+(st<4?"Step "+st+" of 3":"Your plan")+'</p><div class="track" aria-hidden="true" style="margin-bottom:14px"><div class="fill" style="width:'+Math.min(100,st*25+(st===4?0:0))+'%"></div></div>';
+  if(st===1){
+    h+='<h2>About you</h2><p class="muted" style="margin-top:0">We use this to calculate your daily energy needs. It stays on your device.</p><form data-form="wiz"><label>Sex (used in the calorie formula)</label>'+radio("sex","f",d.sex,"Female")+radio("sex","m",d.sex,"Male")+
+    '<div class="row"><div><label for="wa">Age (years)</label><input id="wa" type="number" min="14" max="100" required value="'+d.age+'" inputmode="numeric"></div><div><label for="wh">Height (cm)</label><input id="wh" type="number" min="120" max="230" required value="'+d.height+'" inputmode="numeric"></div><div><label for="ww">Current weight (kg)</label><input id="ww" type="number" min="30" max="300" step="0.1" required value="'+d.weight+'" inputmode="decimal"></div></div>'+
+    '<label class="chk" style="margin-top:12px"><input type="checkbox" id="wp"'+(d.preg?" checked":"")+'> I am pregnant or breastfeeding</label><div class="btnrow">'+(wiz.edit?'<button type="button" data-act="wizcancel">Cancel</button>':"")+'<button class="pri">Next</button></div></form>'
+  }else if(st===2){
+    var locked=d.age<18||d.preg;
+    h+='<h2>Your goal</h2><form data-form="wiz">'+(locked?'<p class="note warn">'+(d.preg?"Pregnant or breastfeeding: your plan will show maintenance calories only. Please follow your midwife or doctor's advice.":"Under 18: your plan will show maintenance calories only.")+"</p>":"")+
+    radio("goal","lose",locked?"maintain":d.goal,"Lose weight","Eat a little less than you burn")+radio("goal","maintain",locked?"maintain":d.goal,"Maintain my weight","Stay where you are")+radio("goal","gain",locked?"maintain":d.goal,"Gain weight","Eat a little more than you burn");
+    if(locked)h=h.replace(/<input type="radio" name="goal" value="(lose|gain)"/g,'<input type="radio" name="goal" value="$1" disabled');
+    var g=locked?"maintain":d.goal;
+    if(g!=="maintain"){
+      var def=d.target&&((g==="lose"&&d.target<d.weight)||(g==="gain"&&d.target>d.weight))?d.target:(g==="lose"?r0(d.weight-5):r0(d.weight+3));
+      h+='<div class="row"><div><label for="wt">Target weight (kg)</label><input id="wt" type="number" min="30" max="300" step="0.1" required value="'+def+'" inputmode="decimal"></div><div><label for="wpace">Weekly pace</label><select id="wpace"><option value="0.25"'+(+d.pace===0.25?" selected":"")+'>Gentle: 0.25 kg/wk</option><option value="0.5"'+(+d.pace===0.5?" selected":"")+'>Steady: 0.5 kg/wk</option></select></div></div>'
+    }
+    h+='<div class="btnrow"><button type="button" data-act="wizback">Back</button><button class="pri">Next</button></div></form>'
+  }else if(st===3){
+    h+='<h2>Daily activity</h2><p class="muted" style="margin-top:0">How active are you on a normal day, not counting workouts? Log workouts in the Activity tab and they are added to your budget.</p><form data-form="wiz">'+ACT.map(function(a,i){return radio("act",i,d.act,a[0],a[1]+" · about "+a[3].toLocaleString("en-GB")+" steps")}).join("")+'<div class="btnrow"><button type="button" data-act="wizback">Back</button><button class="pri">Calculate my plan</button></div></form>'
+  }else{
+    var pl=planFor(d,d.weight),eff=pl.goal,wk=0,when="";
+    if(eff!=="maintain"&&d.target){wk=Math.ceil(Math.abs(d.target-d.weight)/d.pace);var dt=new Date();dt.setDate(dt.getDate()+wk*7);when=dt.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}
+    h+='<h2>Your personal plan</h2><p class="muted" style="margin-top:0">Calculated from your age, sex, height, weight, goal and activity.</p><div class="big">'+pl.kcal+' <span style="font-size:1rem;font-weight:600">kcal per day</span></div>'+
+    '<p class="muted" style="margin:4px 0 12px">Resting needs about '+pl.bmr+' kcal. With your activity about '+pl.tdee+' kcal'+(pl.adj?(pl.adj<0?", minus ":", plus ")+Math.abs(pl.adj)+" kcal for your goal":"")+".</p>"+
+    (wk?'<p>Target <b>'+r1(d.target)+' kg</b> at about '+d.pace+' kg per week: roughly <b>'+wk+' weeks</b> ('+when+').</p>':"")+
+    pl.notes.map(function(n){return'<p class="note warn">'+esc(n)+"</p>"}).join("")+
+    '<h3 style="margin-top:14px">Daily targets</h3><ul class="list"><li><div class="n">Protein</div><span class="k">'+pl.p+' g</span></li><li><div class="n">Carbohydrate</div><span class="k">'+pl.c+' g</span></li><li><div class="n">Fat</div><span class="k">'+pl.f+' g</span></li><li><div class="n">Water</div><span class="k">'+pl.water+' ml</span></li><li><div class="n">Steps</div><span class="k">'+pl.steps.toLocaleString("en-GB")+'</span></li>'+
+    Object.keys(pl.micro).map(function(k){var m=pl.micro[k];return'<li><div class="n">'+m.n+(m.limit?" (limit)":"")+'</div><span class="k">'+m.t+" "+m.u+"</span></li>"}).join("")+'</ul>'+
+    '<div class="btnrow"><button type="button" data-act="wizback">Back</button><button class="pri" data-act="wizfinish">Start tracking</button></div>'
+  }
+  return h+"</section>"
+}
 function viewMe(){
-  var P=S.profile,b=budget();
-  function opt(a,v){return a.map(function(x){return'<option value="'+x[0]+'"'+(String(x[0])===String(v)?" selected":"")+">"+x[1]+"</option>"}).join("")}
-  return'<section class="card"><h2>Your profile</h2><form data-form="profile"><div class="row"><div><label for="pa">Age</label><input id="pa" type="number" min="14" max="100" value="'+P.age+'"></div><div><label for="ps">Sex (for calorie formula)</label><select id="ps"><option value="f"'+(P.sex==="f"?" selected":"")+'>Female</option><option value="m"'+(P.sex==="m"?" selected":"")+'>Male</option></select></div><div><label for="ph">Height (cm)</label><input id="ph" type="number" min="100" max="230" value="'+P.height+'"></div><div><label for="pw">Weight (kg)</label><input id="pw" type="number" step="0.1" min="30" max="300" value="'+r1(weightNow())+'"></div></div>'+
-  '<div class="row"><div><label for="pg">Goal</label><select id="pg">'+opt([["lose","Lose weight"],["maintain","Maintain weight"],["gain","Gain weight"]],P.goal)+'</select></div><div><label for="pp">Pace</label><select id="pp">'+opt([[0.25,"Gentle: 0.25 kg per week"],[0.5,"Steady: 0.5 kg per week"]],P.pace)+'</select></div></div>'+
-  '<div class="row"><div><label for="pwg">Water goal (ml)</label><input id="pwg" type="number" min="500" max="6000" step="50" value="'+P.water+'"></div><div><label for="pst">Step goal</label><input id="pst" type="number" min="1000" max="40000" step="500" value="'+P.steps+'"></div></div>'+
-  '<div class="btnrow"><button class="pri">Save profile</button></div></form><p class="note" style="margin-top:12px">Your daily budget is about <b>'+b.kcal+' kcal</b>. It uses the Mifflin-St Jeor equation with a sedentary baseline; logged exercise and steps are added on top. This is a general estimate, not a prescription.</p></section>'+
+  var P=S.profile,b=plan(),G={lose:"Lose weight",maintain:"Maintain weight",gain:"Gain weight"}[b.goal];
+  return'<section class="card"><h2>Your plan</h2><div class="stats"><div><span>Goal</span><b>'+G+(b.goal!=="maintain"&&P.target?" · "+r1(P.target)+" kg":"")+'</b></div><div><span>Daily calories</span><b>'+b.kcal+' kcal</b></div><div><span>Protein / Carbs / Fat</span><b>'+b.p+" / "+b.c+" / "+b.f+' g</b></div><div><span>Water</span><b>'+b.water+' ml</b></div><div><span>Steps</span><b>'+b.steps.toLocaleString("en-GB")+'</b></div><div><span>Profile</span><b>'+(P.sex==="m"?"Male":"Female")+", "+P.age+" y, "+P.height+" cm, "+r1(weightNow())+' kg</b></div></div>'+
+  b.notes.map(function(n){return'<p class="note warn" style="margin-top:10px">'+esc(n)+"</p>"}).join("")+
+  '<div class="btnrow"><button class="pri" data-act="wizedit">Update my details and goal</button></div><p class="note" style="margin-top:12px">Calories use the Mifflin-St Jeor equation and your activity level. Weights you log update the plan automatically. This is a general estimate, not a prescription.</p></section>'+
+  '<section class="card"><h3>Other vitamins and minerals (daily guide)</h3><ul class="list">'+b.guides.map(function(g){return'<li><div class="n"><b>'+g[0]+'</b> · '+g[1]+'<small>'+g[2]+'</small></div></li>'}).join("")+'</ul><p class="muted" style="margin:8px 0 0">UK reference nutrient intakes, simplified. Needs differ with health conditions, so ask a doctor or dietitian for personal advice.</p></section>'+
   '<section class="card"><h3>Appearance</h3><div class="btnrow" style="margin-top:0"><button data-theme="auto">Auto</button><button data-theme="light">Light</button><button data-theme="dark">Dark</button></div></section>'+
   '<section class="card"><h3>Your data</h3><p class="muted" style="margin-top:0">Everything is stored only in this browser on this device. Clearing browser data deletes it, so download a backup now and then. Nothing is sent to CircuitsTechHub or anyone else.</p><div class="btnrow"><button data-act="export">Download backup</button><label class="btn" style="margin:0;font-weight:400">Restore backup<input type="file" accept=".json,application/json" id="imp" hidden></label><button class="del" data-act="wipe">Delete all data</button></div></section>'
 }
 function render(){
+  if(!S.profile.done&&!wiz)startWizard(false);
+  var y=window.scrollY,ae=document.activeElement&&document.activeElement.id;
+  if(wiz){$("#tabs").innerHTML="";$("#datebar").innerHTML="";$("#app").innerHTML=viewWizard();window.scrollTo(0,0);applyTheme();return}
   drawTabs();drawDate();
   var v={today:viewToday,food:viewFood,move:viewMove,weight:viewWeight,me:viewMe}[tab]();
-  var y=window.scrollY,ae=document.activeElement&&document.activeElement.id;
   $("#app").innerHTML=v;
   if(tab==="move")exPreview();
   if(ae==="fq"){var el=$("#fq");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length)}}
@@ -254,6 +313,26 @@ function exPreview(){var s=$("#et"),m=$("#em"),p=$("#epre");if(!s)return;var k=E
 function applyTheme(){var r=document.documentElement;if(S.theme==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",S.theme)}
 
 /* ---------- events ---------- */
+function wizNext(){
+  var d=wiz.d,st=wiz.step,v;
+  if(st===1){
+    var sx=document.querySelector('input[name=sex]:checked');d.sex=sx?sx.value:d.sex;d.age=r0(+$("#wa").value);d.height=r0(+$("#wh").value);d.weight=r1(+$("#ww").value);d.preg=d.sex==="f"&&$("#wp").checked;
+    if(!(d.age>=14&&d.age<=100)||!(d.height>=120&&d.height<=230)||!(d.weight>=30&&d.weight<=300)){toast("Please check age, height and weight.");return}
+    if(d.sex==="m")d.preg=false
+  }else if(st===2){
+    var g=document.querySelector('input[name=goal]:checked');d.goal=g?g.value:"maintain";
+    if(d.age<18||d.preg)d.goal="maintain";
+    if(d.goal!=="maintain"){
+      var tw=+$("#wt").value;d.pace=+$("#wpace").value||0.25;
+      if(d.goal==="lose"&&!(tw<d.weight)){toast("Target weight must be below your current weight.");return}
+      if(d.goal==="gain"&&!(tw>d.weight)){toast("Target weight must be above your current weight.");return}
+      var minW=18.5*Math.pow(d.height/100,2);
+      if(d.goal==="lose"&&tw<minW){d.target=Math.ceil(minW*10)/10;toast("For your height the lowest healthy target is about "+r1(d.target)+" kg. We set it for you.");wiz.d=d;wiz.step=3;render();return}
+      d.target=r1(tw)
+    }else d.target=0
+  }else if(st===3){var a=document.querySelector('input[name=act]:checked');d.act=a?+a.value:0}
+  wiz.step++;render()
+}
 document.addEventListener("click",function(e){
   var b=e.target.closest("button,[data-tab]");if(!b)return;
   if(b.dataset.tab){tab=b.dataset.tab;foodPick=null;render();window.scrollTo(0,0);return}
@@ -264,6 +343,10 @@ document.addEventListener("click",function(e){
   if(b.dataset.delEx){var d2=day();d2.ex=d2.ex.filter(function(x){return x.id!==b.dataset.delEx});save();render();return}
   if(b.dataset.delW){delete S.weights[b.dataset.delW];save();render();return}
   var a=b.dataset.act;if(!a)return;
+  if(a==="wizback"){wiz.step=Math.max(1,wiz.step-1);render();return}
+  if(a==="wizcancel"){wiz=null;render();return}
+  if(a==="wizedit"){startWizard(true);render();return}
+  if(a==="wizfinish"){var d=wiz.d;S.profile=Object.assign({},S.profile,d,{done:true});S.profile.weight=d.weight;S.weights[today]=d.weight;wiz=null;tab="today";cur=today;save();render();toast("Your plan is ready");return}
   if(a==="water"){var dd=day();dd.water=Math.max(0,(dd.water||0)+ +b.dataset.v);save();render()}
   else if(a==="cancelpick"){foodPick=null;render()}
   else if(a==="export"){var url=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:"application/json"})),l=document.createElement("a");l.href=url;l.download="vitalog-backup-"+today+".json";document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000)}
@@ -275,6 +358,7 @@ document.addEventListener("input",function(e){
   if(e.target.id==="dt"){}
 });
 document.addEventListener("change",function(e){
+  if(wiz&&wiz.step===2&&e.target.name==="goal"){var d=wiz.d;d.goal=e.target.value;var t=$("#wt");if(t)d.target=+t.value||0;if(d.goal!=="maintain"){if(d.goal==="lose"&&!(d.target<d.weight))d.target=r0(d.weight-5);if(d.goal==="gain"&&!(d.target>d.weight))d.target=r0(d.weight+3)}render();return}
   if(e.target.id==="dt"){if(e.target.value&&e.target.value<=today){cur=e.target.value;render()}else{e.target.value=cur}}
   if(e.target.id==="imp"&&e.target.files[0]){var r=new FileReader();r.onload=function(){try{var o=JSON.parse(r.result);if(!o||typeof o!=="object"||!o.profile)throw 0;S=Object.assign(def(),o);S.profile=Object.assign(def().profile,o.profile);save();render();toast("Backup restored")}catch(x){toast("That file is not a valid Vitalog backup.")}};r.readAsText(e.target.files[0])}
 });
@@ -283,21 +367,17 @@ document.addEventListener("submit",function(e){
   if(f==="steps"){d.steps=Math.max(0,r0(+$("#stepsIn").value||0));save();render();toast("Steps saved")}
   else if(f==="addfood"){
     var food=FOODS.concat(S.custom).filter(function(x){return x.name===foodPick})[0],g=+$("#g").value;if(!food||!(g>0))return;
-    var k=g/100;d.food.push({id:uid(),name:food.name,g:g,meal:$("#m").value,kcal:food.kcal*k,p:food.p*k,c:food.c*k,f:food.f*k});
+    var k=g/100;d.food.push({id:uid(),name:food.name,g:g,meal:$("#m").value,kcal:food.kcal*k,p:food.p*k,c:food.c*k,f:food.f*k,fib:(food.fib||0)*k,sug:(food.sug||0)*k,na:(food.na||0)*k,ca:(food.ca||0)*k,fe:(food.fe||0)*k,k:(food.k||0)*k,vc:(food.vc||0)*k});
     foodPick=null;foodQuery="";save();render();toast("Added")}
   else if(f==="custom"){
     var nm=$("#cn").value.trim();if(!nm)return;
-    S.custom.push({name:nm,kcal:+$("#ck").value||0,p:+$("#cp").value||0,c:+$("#cc").value||0,f:+$("#cf").value||0,serving:+$("#cs").value||100});
+    S.custom.push({name:nm,kcal:+$("#ck").value||0,p:+$("#cp").value||0,c:+$("#cc").value||0,f:+$("#cf").value||0,fib:+$("#cfi").value||0,sug:+$("#csu").value||0,na:+$("#cna").value||0,serving:+$("#cs").value||100});
     save();foodQuery=nm;foodPick=nm;render();toast("Food saved")}
   else if(f==="ex"){
     var ex=EXERCISES[+$("#et").value],min=+$("#em").value;if(!(min>0))return;
     d.ex.push({id:uid(),name:ex[0],min:min,kcal:ex[1]*weightNow()*min/60});save();render();toast("Exercise added")}
   else if(f==="weight"){var w=+$("#wv").value;if(!(w>=20&&w<=400))return;S.weights[cur]=w;S.profile.weight=w;save();render();toast("Weight saved")}
-  else if(f==="profile"){
-    var P=S.profile;P.age=+$("#pa").value||P.age;P.sex=$("#ps").value;P.height=+$("#ph").value||P.height;
-    var nw=+$("#pw").value;if(nw>=30){P.weight=nw;if(!S.weights[today])S.weights[today]=nw}
-    P.goal=$("#pg").value;P.pace=+$("#pp").value;P.water=+$("#pwg").value||2000;P.steps=+$("#pst").value||8000;
-    save();render();toast("Profile saved")}
+  else if(f==="wiz"){wizNext()}
 });
 if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0){try{navigator.serviceWorker.register("sw.js").catch(function(){})}catch(e){}}
 render();
