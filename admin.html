@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Site Yönetimi</title>
+<style>
+  :root { --bg:#f4f3f0; --card:#fff; --text:#1d1b19; --muted:#6b675f; --border:#dcd8d0; --accent:#7b42bc; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--text); }
+  .top { background:var(--card); border-bottom:1px solid var(--border); padding:10px 20px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; position:sticky; top:0; z-index:5; }
+  .top h1 { font-size:1.05rem; margin:0 auto 0 0; }
+  .tabs { display:flex; gap:4px; padding:12px 20px 0; flex-wrap:wrap; max-width:960px; margin:0 auto; }
+  .tabs button { border:1px solid var(--border); border-bottom:0; background:#ebe9e4; padding:8px 14px; border-radius:10px 10px 0 0; font:inherit; cursor:pointer; }
+  .tabs button.on { background:var(--card); font-weight:600; }
+  .panel { background:var(--card); border:1px solid var(--border); max-width:960px; margin:0 auto 40px; padding:24px; border-radius:0 12px 12px 12px; }
+  .tabs + .panel { margin-top:0; }
+  label { display:block; font-weight:600; margin:14px 0 4px; font-size:.9rem; }
+  label small { font-weight:400; color:var(--muted); }
+  h3 { margin:28px 0 6px; } h4 { margin:20px 0 4px; font-size:.95rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  input[type=text], input[type=email], input[type=url], input[type=number], textarea, select { width:100%; padding:9px 11px; border:1px solid var(--border); border-radius:8px; font:inherit; background:#fff; }
+  textarea { min-height:110px; resize:vertical; }
+  input[type=color] { width:56px; height:38px; padding:2px; border:1px solid var(--border); border-radius:8px; background:#fff; }
+  .row { display:grid; gap:14px; grid-template-columns:1fr 1fr; }
+  .row3 { display:grid; gap:14px; grid-template-columns:repeat(3,1fr); }
+  @media(max-width:700px){ .row,.row3{grid-template-columns:1fr;} }
+  .item { border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin:14px 0; background:#fcfbf9; }
+  .item .item { background:#fff; }
+  .item-head { display:flex; gap:8px; align-items:center; }
+  .item-head strong { margin-right:auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  button.b, a.b { border:1px solid var(--border); background:#fff; padding:6px 12px; border-radius:8px; font:inherit; cursor:pointer; color:inherit; text-decoration:none; display:inline-block; }
+  button.b:hover, a.b:hover { border-color:var(--text); }
+  button.b.pri { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  button.b.danger { color:#b3261e; }
+  button.b:disabled { opacity:.4; cursor:default; }
+  .hint { color:var(--muted); font-size:.88rem; }
+  .imgrow { display:flex; gap:12px; align-items:center; margin-top:4px; flex-wrap:wrap; }
+  .imgrow img { width:96px; height:60px; object-fit:cover; border-radius:6px; border:1px solid var(--border); }
+  .imgrow .noimg { width:96px; height:60px; border-radius:6px; border:1px dashed var(--border); display:grid; place-items:center; color:var(--muted); font-size:.75rem; }
+  .check { display:flex; gap:8px; align-items:center; font-weight:600; margin-top:14px; }
+  .check input { width:auto; }
+  .note { background:#fff6e5; border:1px solid #f0d9a8; padding:12px 14px; border-radius:8px; margin:14px 0; }
+  .ok { background:#eaf6ee; border:1px solid #b9dfc6; padding:12px 14px; border-radius:8px; margin:14px 0; }
+  .dirty { background:#fff1d6; border-bottom:1px solid #f0d9a8; padding:9px 20px; text-align:center; font-size:.92rem; }
+  .dirty[hidden] { display:none; }
+  details.fmt-box { margin-top:8px; border:1px dashed var(--border); border-radius:8px; padding:8px 12px; background:#faf9f7; }
+  details.fmt-box summary { cursor:pointer; font-weight:600; font-size:.88rem; color:var(--muted); }
+  ol li, ul li { margin-bottom:6px; }
+  .toast { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:#1d1b19; color:#fff; padding:9px 18px; border-radius:999px; opacity:0; transition:.2s; pointer-events:none; z-index:20; max-width:92vw; text-align:center; }
+  .toast.show { opacity:1; }
+  .btns { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Site Yönetimi</h1>
+  <span class="hint" id="status">Değişiklikler bu tarayıcıda otomatik kaydedilir (taslak)</span>
+  <a class="b" href="index.html" target="_blank">Siteyi önizle ↗</a>
+  <button class="b" id="connect" data-act="connect" hidden>Site klasörünü bağla</button>
+  <button class="b pri" id="savefolder" data-act="savefolder" hidden>Klasöre kaydet</button>
+  <button class="b" data-act="download">Dosyayı indir</button>
+</div>
+<div class="dirty" id="dirty" hidden></div>
+<div class="tabs" id="tabs"></div>
+<div class="panel" id="panel"></div>
+<div class="toast" id="toast"></div>
+
+<script src="data/site-data.js"></script>
+<script src="js/shared.js"></script>
+<script>
+(function () {
+  var Sh = window.PortfolioShared, KEY = Sh.DRAFT_KEY, TRASH = "portfolio-draft-trash-v1", esc = Sh.esc;
+  var $ = function (id) { return document.getElementById(id); };
+  var clone = function (o) { return JSON.parse(JSON.stringify(o)); };
+
+  var state = Sh.normalize(Sh.readDraft() || window.SITE_DATA);
+  var fileSnapshot = JSON.stringify(Sh.normalize(window.SITE_DATA));   // dosyadaki (yayında olan) içerik
+
+  var tab = "design", blocksPage = "home";
+  var tabs = [["design","Tasarım"],["home","Ana sayfa"],["projects","Projeler"],["about","About Us"],["capabilities","Capabilities"],["products","Products"],["apps","Apps"],["careers","Careers"],["news","News & Publications"],["blocks","Sayfa içeriği"],["contact","İletişim"],["publish","Yayınla / Yedek"]];
+  var PAGE_OPTIONS = [["home","Home"],["projects","Projects"],["about","About Us"],["capabilities","Capabilities"],["products","Products"],["apps","Apps"],["careers","Careers"],["news","News & Publications"],["contact","Contact"]];
+  var ICON_OPTIONS = [["chip","Chip"],["chart","Chart"],["layers","Layers"],["cloud","Cloud"],["bulb","Light bulb"],["shield","Shield"],["code","Code"],["cog","Gear"],["bolt","Bolt"],["globe","Globe"]];
+  var FONT_OPTIONS = [["","Varsayılan"],["sans","Modern (sans-serif)"],["serif","Klasik (serif)"],["mono","Teknik (monospace)"]];
+  var ALIGN_OPTIONS = [["","Varsayılan"],["left","Sola yaslı"],["center","Ortalı"],["right","Sağa yaslı"],["justify","İki yana yaslı"]];
+
+  var templates = {
+    project: function () { return { id: "yeni-proje-" + Date.now().toString(36), title: "New project", summary: "", description: "", tags: [], year: String(new Date().getFullYear()), image: "", link: "", linkLabel: "View project", featured: false, blocks: [] }; },
+    skill: function () { return "New skill"; },
+    link: function () { return { label: "", url: "https://" }; },
+    reference: function () { return { name: "New reference", role: "", quote: "", logo: "" }; },
+    history: function () { return { year: String(new Date().getFullYear()), title: "New milestone", text: "" }; },
+    capability: function () { return { icon: "bolt", title: "New capability", text: "", tags: [] }; },
+    product: function () { return { id: "new-product-" + Date.now().toString(36), name: "New product", tagline: "", description: "", features: [], badge: "", image: "", link: "", linkLabel: "Learn more" }; },
+    app: function () { return { id: "new-app-" + Date.now().toString(36), name: "New app", tagline: "", description: "", features: [], badge: "", platform: "Windows / macOS / Linux", version: "1.0", image: "", file: "", downloadLabel: "Download", link: "", linkLabel: "Learn more" }; },
+    perk: function () { return { title: "New benefit", text: "" }; },
+    job: function () { return { id: "new-job-" + Date.now().toString(36), title: "New position", department: "", location: "", type: "Full-time", description: "", applyLink: "" }; },
+    news: function () { return { type: "News", title: "New item", date: "", summary: "", link: "", linkLabel: "Read more", image: "" }; },
+    block: function () { return { where: "bottom", heading: "", body: "", fmt: {}, image: "", imageAlt: "", imagePos: "right", imageSize: "medium", files: [] }; },
+    file: function () { return { label: "", path: "" }; }
+  };
+
+  /* ---------- veri erişimi ---------- */
+  function get(path) { return path.split(".").reduce(function (o, k) { return o == null ? o : o[k]; }, state); }
+  function set(path, val) {
+    var ks = path.split("."), last = ks.pop(), o = state;
+    ks.forEach(function (k) { if (o[k] == null || typeof o[k] !== "object") o[k] = {}; o = o[k]; });
+    o[last] = val;
+  }
+  function toast(m) { var t = $("toast"); t.textContent = m; t.className = "toast show"; clearTimeout(toast._t); toast._t = setTimeout(function () { t.className = "toast"; }, 3200); }
+
+  var saveTimer;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      try { localStorage.setItem(KEY, JSON.stringify(state)); $("status").textContent = "Taslak kaydedildi (yalnızca bu tarayıcıda)"; }
+      catch (e) { $("status").textContent = "⚠ Taslak tarayıcıya sığmadı (görseller/dosyalar büyük). Dosyayı indirin ya da klasörü bağlayın."; }
+      updateDirty();
+    }, 200);
+    updateDirty();
+  }
+  function updateDirty() {
+    var bar = $("dirty"), dirty = JSON.stringify(state) !== fileSnapshot;
+    bar.hidden = !dirty;
+    if (dirty) bar.innerHTML = "⚠ Değişiklikleriniz henüz <b>site-data.js</b> dosyasına yazılmadı; tarayıcı verisi silinirse kaybolur. " +
+      (fsRoot ? '<button class="b pri" data-act="savefolder">Klasöre kaydet</button>' : '<button class="b pri" data-act="download">Dosyayı indir</button> <span class="hint">sonra data klasöründeki eskisinin yerine koyun</span>');
+  }
+
+  /* ---------- Site klasörüne doğrudan yazma (Chrome / Edge) ---------- */
+  var supportsFS = typeof window.showDirectoryPicker === "function";
+  var fsRoot = null, fsStored = null;
+  function idb() { return new Promise(function (res, rej) { var r = indexedDB.open("portfolio-admin", 1); r.onupgradeneeded = function () { r.result.createObjectStore("kv"); }; r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); }; }); }
+  function idbGet(k) { return idb().then(function (db) { return new Promise(function (res, rej) { var q = db.transaction("kv").objectStore("kv").get(k); q.onsuccess = function () { res(q.result); }; q.onerror = function () { rej(q.error); }; }); }); }
+  function idbPut(k, v) { return idb().then(function (db) { return new Promise(function (res, rej) { var tx = db.transaction("kv", "readwrite"); tx.objectStore("kv").put(v, k); tx.oncomplete = res; tx.onerror = function () { rej(tx.error); }; }); }); }
+
+  function updateFsUI() {
+    var c = $("connect"), s = $("savefolder");
+    c.hidden = !supportsFS; s.hidden = !fsRoot;
+    c.textContent = fsRoot ? "✓ Klasör bağlı (" + fsRoot.name + ")" : (fsStored ? "Klasöre yeniden bağlan" : "Site klasörünü bağla");
+    updateDirty();
+  }
+  async function useHandle(h) {
+    try { await h.getDirectoryHandle("data"); } catch (e) { toast("Bu site klasörü gibi görünmüyor (içinde 'data' klasörü yok). index.html'in bulunduğu klasörü seçin."); return false; }
+    fsRoot = h; fsStored = h; try { await idbPut("root", h); } catch (e) {}
+    updateFsUI(); return true;
+  }
+  async function connectFolder() {
+    try {
+      if (fsStored && !fsRoot) {   // önceden bağlanmıştı: izni yenile
+        var p = await fsStored.requestPermission({ mode: "readwrite" });
+        if (p === "granted") { fsRoot = fsStored; updateFsUI(); toast("Klasöre bağlanıldı"); return; }
+      }
+      var h = await window.showDirectoryPicker({ mode: "readwrite" });
+      if (await useHandle(h)) toast("Klasör bağlandı. Artık 'Klasöre kaydet' ile doğrudan yazabilirsiniz.");
+    } catch (e) { if (e && e.name !== "AbortError") toast("Klasöre bağlanılamadı: " + (e.message || e)); }
+  }
+  async function writeFile(path, content) {
+    var parts = path.split("/"), name = parts.pop(), dir = fsRoot;
+    for (var i = 0; i < parts.length; i++) dir = await dir.getDirectoryHandle(parts[i], { create: true });
+    var fh = await dir.getFileHandle(name, { create: true }), w = await fh.createWritable();
+    await w.write(content); await w.close();
+  }
+  async function exists(path) {
+    var parts = path.split("/"), name = parts.pop(), dir = fsRoot;
+    try { for (var i = 0; i < parts.length; i++) dir = await dir.getDirectoryHandle(parts[i]); await dir.getFileHandle(name); return true; } catch (e) { return false; }
+  }
+  async function saveAsset(file, folder) {          // dosyayı site klasörüne koyar, göreli yolu döndürür
+    var raw = file.name.toLowerCase().replace(/ı/g, "i").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "file";
+    var dot = raw.lastIndexOf("."), base = dot > 0 ? raw.slice(0, dot) : raw, ext = dot > 0 ? raw.slice(dot) : "", n = 0, name = raw;
+    while (await exists(folder + "/" + name)) { n++; name = base + "-" + n + ext; }
+    await writeFile(folder + "/" + name, file);
+    return folder + "/" + name;
+  }
+  function buildDataFile() {
+    return "/* Admin sayfasıyla oluşturuldu: " + new Date().toLocaleString("tr-TR") + " */\nwindow.SITE_DATA = " + JSON.stringify(state, null, 2) + ";\n";
+  }
+  async function saveToFolder() {
+    if (!fsRoot) { toast("Önce site klasörünü bağlayın."); return; }
+    try {
+      await writeFile("data/site-data.js", buildDataFile());
+      fileSnapshot = JSON.stringify(state);
+      try { localStorage.removeItem(KEY); } catch (e) {}
+      $("status").textContent = "Klasöre kaydedildi: data/site-data.js";
+      updateDirty(); toast("Kaydedildi. Siteyi yenileyince değişiklikler görünür.");
+    } catch (e) { toast("Kaydedilemedi: " + (e.message || e)); }
+  }
+
+  /* ---------- Form bileşenleri ---------- */
+  function field(label, path, opts) { return "<div>" + field0(label, path, opts) + "</div>"; }   /* her alan tek kutuda: yan yana dizilimler bozulmasın */
+  function field0(label, path, opts) {
+    opts = opts || {};
+    var v = get(path), type = opts.type || "text";
+    var hint = opts.hint ? " <small>" + esc(opts.hint) + "</small>" : "";
+    if (type === "textarea") return "<label>" + label + hint + '</label><textarea data-path="' + path + '">' + esc(v) + "</textarea>" + (opts.fmt ? styleControls(opts.fmt) : "");
+    if (type === "list") return "<label>" + label + hint + '</label><input type="text" data-path="' + path + '" data-list="1" value="' + esc((v || []).join(", ")) + '">';
+    if (type === "check") return '<label class="check"><input type="checkbox" data-path="' + path + '"' + (v ? " checked" : "") + "> " + label + "</label>";
+    if (type === "color") return "<label>" + label + '</label><input type="color" data-path="' + path + '" value="' + esc(v || "#000000") + '">';
+    if (type === "select") return "<label>" + label + '</label><select data-path="' + path + '">' + opts.options.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === (v == null ? "" : v) ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select>";
+    return "<label>" + label + hint + '</label><input type="' + type + '" data-path="' + path + '" value="' + esc(v) + '">';
+  }
+  /* Yazı biçimi: font, boyut, renk, hizalama, kalın / italik */
+  function styleControls(base) {
+    var col = get(base + ".color");
+    return '<details class="fmt-box"><summary>Yazı biçimi (font, boyut, renk, hizalama)</summary>' +
+      '<div class="row3">' + field("Yazı tipi", base + ".font", { type: "select", options: FONT_OPTIONS }) +
+      field("Boyut (px, 0 = varsayılan)", base + ".size", { type: "number" }) +
+      field("Hizalama", base + ".align", { type: "select", options: ALIGN_OPTIONS }) + "</div>" +
+      '<div class="row3"><div><label>Renk ' + (col ? "" : "<small>(ayarlı değil)</small>") + '</label><input type="color" data-path="' + base + '.color" value="' + esc(col || "#1d1b19") + '"></div>' +
+      field("Kalın", base + ".bold", { type: "check" }) + field("İtalik", base + ".italic", { type: "check" }) + "</div>" +
+      '<div class="btns"><button class="b" data-act="clearval" data-path="' + base + '.color">Rengi sıfırla</button><button class="b" data-act="resetfmt" data-path="' + base + '">Tüm biçimi sıfırla</button></div></details>';
+  }
+  function imageField(label, path) {
+    var v = get(path), embedded = v && v.indexOf("data:") === 0;
+    return "<label>" + label + ' <small>(' + (fsRoot ? "seçtiğiniz dosya images/ klasörüne kaydedilir" : "yol yazın: images/foto.jpg — ya da bilgisayardan seçin") + ")</small></label>" +
+      '<input type="text" data-path="' + path + '" value="' + (embedded ? "" : esc(v)) + '" placeholder="images/dosya-adi.jpg">' +
+      '<div class="imgrow">' + (v ? '<img src="' + esc(v) + '" alt="">' : '<div class="noimg">görsel yok</div>') +
+      '<input type="file" accept="image/*" data-img="' + path + '">' +
+      (v ? '<button class="b danger" data-act="clearval" data-path="' + path + '">Kaldır</button>' : "") + "</div>" +
+      (embedded ? '<div class="hint">Bu görsel dosyanın içine gömüldü. Site klasörünü bağlarsanız görseller images/ klasörüne ayrı dosya olarak kaydedilir.</div>' : "");
+  }
+  function fileField(label, path) {
+    var v = get(path), embedded = v && v.indexOf("data:") === 0;
+    return "<label>" + label + ' <small>(' + (fsRoot ? "seçtiğiniz dosya files/ klasörüne kaydedilir" : "yol yazın: files/rapor.pdf — ya da küçük (≤1,2 MB) bir dosya seçin") + ")</small></label>" +
+      '<input type="text" data-path="' + path + '" value="' + (embedded ? "" : esc(v)) + '" placeholder="files/dosya-adi.pdf">' +
+      '<div class="imgrow"><input type="file" data-file="' + path + '">' + (embedded ? '<span class="hint">✓ dosya gömüldü</span>' : (v ? '<span class="hint">✓ ' + esc(v) + "</span>" : "")) + "</div>";
+  }
+  function listControls(path, i, n) {
+    return '<button class="b" data-act="up" data-path="' + path + '" data-i="' + i + '"' + (i === 0 ? " disabled" : "") + '>↑</button>' +
+      '<button class="b" data-act="down" data-path="' + path + '" data-i="' + i + '"' + (i === n - 1 ? " disabled" : "") + '>↓</button>' +
+      '<button class="b danger" data-act="del" data-path="' + path + '" data-i="' + i + '">Sil</button>';
+  }
+  function list(path, tpl, addLabel, titleOf, fieldsOf) {
+    if (!Array.isArray(get(path))) set(path, []);
+    var arr = get(path), h = "";
+    arr.forEach(function (it, i) {
+      var b = path + "." + i + ".";
+      h += '<div class="item"><div class="item-head"><strong>' + esc(titleOf(it) || "(başlıksız)") + "</strong>" + listControls(path, i, arr.length) + "</div>" + fieldsOf(it, b) + "</div>";
+    });
+    if (!arr.length) h += '<p class="hint">Henüz kayıt yok.</p>';
+    return h + '<button class="b pri" data-act="add" data-path="' + path + '" data-tpl="' + tpl + '">' + addLabel + "</button>";
+  }
+
+  /* Sayfa blokları: metin + görsel (konum seçilir) + indirilebilir dosyalar */
+  function blocksEditor(path) {
+    return list(path, "block", "+ Blok ekle (metin / görsel / dosya)", function (b) { return b.heading || (b.body || "").slice(0, 40) || (b.image ? "Görsel" : "Blok"); }, function (b, base) {
+      return '<div class="row">' + field("Başlık (isteğe bağlı)", base + "heading") +
+        field("Sayfadaki yeri", base + "where", { type: "select", options: [["bottom", "Sayfanın altı (Next çubuğunun üstü)"], ["top", "Sayfanın üstü (başlık bandının hemen altı)"]] }) + "</div>" +
+        field("Metin", base + "body", { type: "textarea", hint: "boş satır = yeni paragraf", fmt: base + "fmt" }) +
+        "<h4>Görsel</h4>" + imageField("Görsel", base + "image") +
+        '<div class="row3">' + field("Alt yazı", base + "imageAlt", { hint: "görselin altında görünür" }) +
+        field("Görselin konumu", base + "imagePos", { type: "select", options: [["right", "Sağda (metin solda)"], ["left", "Solda (metin sağda)"], ["above", "Metnin üstünde"], ["below", "Metnin altında"], ["center", "Ortada (metnin üstünde)"], ["full", "Tam genişlik (metnin üstünde)"]] }) +
+        field("Görsel boyutu", base + "imageSize", { type: "select", options: [["small", "Küçük"], ["medium", "Orta"], ["large", "Büyük"]] }) + "</div>" +
+        "<h4>İndirilebilir dosyalar</h4>" +
+        list(base + "files", "file", "+ Dosya ekle", function (f) { return f.label || f.path; }, function (f, fb) { return field("Görünen ad", fb + "label") + fileField("Dosya", fb + "path"); });
+    });
+  }
+
+  /* ---------- Sekmeler ---------- */
+  var views = {
+    design: function () {
+      return '<div class="row">' + field("Site adı (sol üstte görünür)", "settings.siteName") + field("Alt başlık", "settings.tagline") + "</div>" +
+        "<h3>Logo</h3>" + imageField("Logo", "settings.logo") +
+        '<div class="hint">Boş bırakırsanız site adının ilk harfinden otomatik bir logo çıkar. Menü koyu olduğu için açık renkli ya da şeffaf arka planlı (PNG/SVG) logo en iyi sonucu verir.</div>' +
+        '<div class="row">' + field("Logonun yüksekliği (px)", "settings.logoHeight", { type: "number", hint: "16–96" }) + "<div>" + field("Logonun yanında site adını göster", "settings.logoShowName", { type: "check" }) + "</div></div>" +
+        "<h3>Renkler</h3>" +
+        '<div class="row3">' + field("Vurgu rengi", "settings.accent", { type: "color" }) + field("Koyu bölümler (menü, hero, alt bilgi)", "settings.dark", { type: "color" }) + field("Açık bölüm arka planı", "settings.bg", { type: "color" }) + "</div>" +
+        field("Açık bölüm yazı rengi", "settings.text", { type: "color" }) +
+        field("Yazı tipi", "settings.font", { type: "select", options: [["sans", "Modern (sans-serif)"], ["serif", "Klasik (serif)"], ["mono", "Teknik (monospace)"]] }) +
+        "<h3>Fareyi takip eden nokta</h3>" + field("Noktayı göster", "settings.cursorEnabled", { type: "check" }) +
+        '<div class="row3">' + field("Nokta rengi", "settings.cursorColor", { type: "color" }) + field("Boyut (px)", "settings.cursorSize", { type: "number", hint: "6–64" }) + "<div></div></div>" +
+        '<div class="note">Koyu bölüm rengini koyu tutun; yazılar bu bölümlerde açık renkle çıkar. Daha ileri tasarım değişiklikleri için <b>css/style.css</b> dosyasını bir metin editöründe açabilirsiniz.</div>';
+    },
+    home: function () {
+      return field("Üst küçük etiket", "home.heroEyebrow") + field("Ana başlık", "home.heroTitle") + field("Tanıtım metni", "home.heroText", { type: "textarea", fmt: "textStyles.home_heroText" }) +
+        '<div class="row">' + field("Buton yazısı", "home.ctaText") + field("“Öne çıkan projeler” başlığı", "home.featuredTitle") + "</div>" +
+        "<h3>Alttaki çağrı bandı</h3>" + field("Başlık", "home.bandTitle") + field("Metin", "home.bandText") + field("Buton yazısı", "home.bandButton") +
+        '<p class="hint">Hangi projelerin ana sayfada görüneceğini “Projeler” sekmesinde, her projedeki “Ana sayfada göster” kutusuyla seçersiniz. Ana sayfaya metin, görsel ya da dosya eklemek için “Sayfa içeriği” sekmesini kullanın.</p>';
+    },
+    projects: function () {
+      return '<p class="hint">Her projeye ayrıca metin, görsel ve indirilebilir dosya blokları ekleyebilirsiniz (proje sayfasında görünür).</p>' +
+        list("projects", "project", "+ Yeni proje ekle", function (p) { return p.title; }, function (p, b) {
+          return field("Başlık", b + "title") + field("Kısa özet (kartta görünür)", b + "summary") +
+            field("Ayrıntılı açıklama", b + "description", { type: "textarea", hint: "boş satır = yeni paragraf", fmt: b + "descFmt" }) +
+            '<div class="row">' + field("Etiketler", b + "tags", { type: "list", hint: "virgülle ayırın" }) + field("Yıl", b + "year") + "</div>" +
+            imageField("Kapak görseli", b + "image") +
+            '<div class="row">' + field("Dış bağlantı", b + "link", { type: "url", hint: "GitHub, makale, demo… (boş bırakılabilir)" }) + field("Bağlantı buton yazısı", b + "linkLabel") + "</div>" +
+            '<div class="row">' + field("Sayfa adresi kimliği", b + "id", { hint: "küçük harf, boşluksuz" }) + "<div>" + field("Ana sayfada göster", b + "featured", { type: "check" }) + "</div></div>" +
+            "<h4>Bu projeye ek içerik (metin / görsel / dosya)</h4>" + blocksEditor(b + "blocks");
+        });
+    },
+    about: function () {
+      return field("Sayfa başlığı", "about.title") + field("Başlık altı kısa cümle", "about.lead") +
+        "<h3>About Us</h3>" + field("Metin", "about.intro", { type: "textarea", hint: "boş satır = yeni paragraf", fmt: "textStyles.about_intro" }) +
+        "<h3>Mission &amp; Vision</h3>" + field("Mission", "about.mission", { type: "textarea", fmt: "textStyles.about_mission" }) + field("Vision", "about.vision", { type: "textarea", fmt: "textStyles.about_vision" }) +
+        "<h3>Our References</h3>" + '<p class="hint">Yalnızca gerçek müşteri/iş ortaklarını ve izin aldığınız alıntıları ekleyin.</p>' +
+        list("about.references", "reference", "+ Referans ekle", function (r) { return r.name; }, function (r, b) {
+          return '<div class="row">' + field("Ad / kurum", b + "name") + field("Unvan / sektör", b + "role") + "</div>" + field("Alıntı", b + "quote", { type: "textarea" }) + imageField("Logo (isteğe bağlı)", b + "logo");
+        }) +
+        "<h3>Our History</h3>" +
+        list("about.history", "history", "+ Tarihçe satırı ekle", function (t) { return t.year + " — " + t.title; }, function (t, b) {
+          return '<div class="row">' + field("Yıl", b + "year") + field("Başlık", b + "title") + "</div>" + field("Açıklama", b + "text", { type: "textarea" });
+        });
+    },
+    capabilities: function () {
+      return field("Sayfa başlığı", "capabilities.title") + field("Giriş metni", "capabilities.intro", { type: "textarea", fmt: "textStyles.capabilities_intro" }) + "<h3>Yetkinlikler</h3>" +
+        list("capabilities.items", "capability", "+ Yetkinlik ekle", function (c) { return c.title; }, function (c, b) {
+          return '<div class="row">' + field("Başlık", b + "title") + field("Simge", b + "icon", { type: "select", options: ICON_OPTIONS }) + "</div>" +
+            field("Açıklama", b + "text", { type: "textarea" }) + field("Etiketler", b + "tags", { type: "list", hint: "virgülle ayırın" });
+        });
+    },
+    products: function () {
+      return field("Sayfa başlığı", "products.title") + field("Giriş metni", "products.intro", { type: "textarea", fmt: "textStyles.products_intro" }) + "<h3>Ürünler</h3>" +
+        list("products.items", "product", "+ Ürün ekle", function (p) { return p.name; }, function (p, b) {
+          return '<div class="row">' + field("Ürün adı", b + "name") + field("Kısa slogan", b + "tagline") + "</div>" +
+            field("Açıklama", b + "description", { type: "textarea" }) +
+            '<div class="row">' + field("Özellikler", b + "features", { type: "list", hint: "virgülle ayırın" }) + field("Rozet (ör. New)", b + "badge") + "</div>" +
+            imageField("Ürün görseli", b + "image") +
+            '<div class="row">' + field("Bağlantı", b + "link", { type: "url", hint: "boş bırakılabilir" }) + field("Bağlantı buton yazısı", b + "linkLabel") + "</div>";
+        });
+    },
+    apps: function () {
+      return field("Sayfa başlığı", "apps.title") + field("Giriş metni", "apps.intro", { type: "textarea", fmt: "textStyles.apps_intro" }) + "<h3>Uygulamalar</h3>" +
+        '<p class="hint">Her uygulama için indirilebilir dosya yükleyin (zip, html, exe…). Klasör bağlıysa dosya files/ klasörüne kaydedilir.</p>' +
+        list("apps.items", "app", "+ Uygulama ekle", function (p) { return p.name; }, function (p, b) {
+          return '<div class="row">' + field("Uygulama adı", b + "name") + field("Kısa slogan", b + "tagline") + "</div>" +
+            field("Açıklama", b + "description", { type: "textarea" }) +
+            '<div class="row3">' + field("Platform", b + "platform") + field("Sürüm", b + "version") + field("Rozet (ör. New)", b + "badge") + "</div>" +
+            field("Özellikler", b + "features", { type: "list", hint: "virgülle ayırın" }) + imageField("Görsel / ikon", b + "image") +
+            fileField("İndirilecek dosya", b + "file") + '<div class="row">' + field("İndirme buton yazısı", b + "downloadLabel") + field("Ek bağlantı (isteğe bağlı)", b + "link", { type: "url" }) + "</div>";
+        });
+    },
+    careers: function () {
+      return field("Sayfa başlığı", "careers.title") + field("Giriş metni", "careers.intro", { type: "textarea", fmt: "textStyles.careers_intro" }) +
+        field("Başvuru e-postası", "careers.applyEmail", { type: "email", hint: "boşsa İletişim sayfasındaki e-posta kullanılır" }) +
+        "<h3>Why join us</h3>" + list("careers.perks", "perk", "+ Avantaj ekle", function (p) { return p.title; }, function (p, b) { return field("Başlık", b + "title") + field("Metin", b + "text"); }) +
+        "<h3>Open positions</h3>" +
+        list("careers.jobs", "job", "+ İş ilanı ekle", function (j) { return j.title; }, function (j, b) {
+          return field("Pozisyon", b + "title") + '<div class="row3">' + field("Departman", b + "department") + field("Konum", b + "location") + field("Tür", b + "type") + "</div>" +
+            field("Açıklama", b + "description", { type: "textarea" }) + field("Başvuru bağlantısı", b + "applyLink", { type: "url", hint: "boşsa e-posta ile başvuru butonu çıkar" });
+        });
+    },
+    news: function () {
+      return field("Sayfa başlığı", "news.title") + field("Giriş metni", "news.intro", { type: "textarea", fmt: "textStyles.news_intro" }) + "<h3>Haberler ve yayınlar</h3>" +
+        '<p class="hint">“Tür” alanına yazdığınız her kelime (News, Publication, Press…) sayfada filtre düğmesi olur. En üstteki kayıt sayfada en üstte görünür.</p>' +
+        list("news.items", "news", "+ Haber / yayın ekle", function (n) { return n.title; }, function (n, b) {
+          return '<div class="row3">' + field("Tür", b + "type") + field("Tarih", b + "date", { hint: "ör. 12 Oct 2026" }) + "<div></div></div>" +
+            field("Başlık", b + "title") + field("Özet", b + "summary", { type: "textarea" }) + imageField("Görsel (isteğe bağlı)", b + "image") +
+            '<div class="row">' + field("Bağlantı", b + "link", { type: "url" }) + field("Bağlantı yazısı", b + "linkLabel") + "</div>";
+        });
+    },
+    blocks: function () {
+      return "<h3>Sayfa içeriği</h3>" +
+        '<p class="hint">Seçtiğiniz sayfaya istediğiniz kadar blok ekleyin. Her blok; başlık, biçimlendirilebilir metin (font, boyut, renk, sola/ortaya/sağa/iki yana yaslı), konumunu seçebildiğiniz bir görsel ve indirilebilir dosyalardan oluşur. Hepsi isteğe bağlıdır: yalnızca görsel, yalnızca metin ya da yalnızca dosya da olabilir.</p>' +
+        '<label>Hangi sayfa?</label><select data-bp="1">' + PAGE_OPTIONS.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === blocksPage ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select>" +
+        '<div style="margin-top:12px">' + blocksEditor("pageBlocks." + blocksPage) + "</div>" +
+        '<p class="hint">Proje sayfalarına blok eklemek için “Projeler” sekmesinde ilgili projeyi açın.</p>';
+    },
+    contact: function () {
+      var h = field("Başlık", "contact.title") + field("Metin", "contact.text", { type: "textarea", fmt: "textStyles.contact_text" }) + field("E-posta", "contact.email", { type: "email" }) + field("Adres", "contact.address", { type: "textarea", hint: "isteğe bağlı" }) + "<h3>Bağlantılar</h3>";
+      state.contact.links.forEach(function (l, i) {
+        var b = "contact.links." + i + ".";
+        h += '<div class="item"><div class="item-head"><strong>' + esc(l.label || "(adsız)") + "</strong>" + listControls("contact.links", i, state.contact.links.length) + "</div>" +
+          '<div class="row">' + field("Ad", b + "label") + field("Adres", b + "url", { type: "url" }) + "</div></div>";
+      });
+      return h + '<button class="b" data-act="add" data-path="contact.links" data-tpl="link">+ Bağlantı ekle</button>';
+    },
+    publish: function () {
+      var trash = null; try { trash = localStorage.getItem(TRASH); } catch (e) {}
+      return "<h2>Değişiklikleri siteye yazma</h2>" +
+        '<div class="note"><b>Önemli:</b> Panelde yaptığınız değişiklikler önce yalnızca bu tarayıcıda “taslak” olarak durur. <b>Site dosyasına yazmazsanız</b> (aşağıdaki A ya da B) tarayıcı verisini silince ya da “taslağı sil”e basınca kaybolurlar.</div>' +
+        "<h3>A) Klasöre doğrudan kaydet (Chrome / Edge, önerilen)</h3>" +
+        (supportsFS
+          ? "<ol><li>Üstteki <b>“Site klasörünü bağla”</b> düğmesine basın ve <code>index.html</code>’in bulunduğu klasörü seçin, izin verin.</li><li>Artık yüklediğiniz görseller <code>images/</code>, dosyalar <code>files/</code> klasörüne kendiliğinden kaydedilir.</li><li><b>“Klasöre kaydet”</b> (ya da Ctrl+S) <code>data/site-data.js</code> dosyasını doğrudan günceller. Kopyalamanız gerekmez.</li></ol>" +
+            (fsRoot ? '<div class="ok">✓ Klasör bağlı: <b>' + esc(fsRoot.name) + '</b></div><div class="btns"><button class="b pri" data-act="savefolder">Klasöre kaydet</button></div>' : "")
+          : '<div class="note">Bu tarayıcı klasöre doğrudan yazmayı desteklemiyor (Firefox / Safari). Chrome ya da Edge kullanın, ya da B seçeneğini izleyin.</div>') +
+        "<h3>B) Dosyayı indirip yerine koyma</h3>" +
+        "<ol><li><b>“Dosyayı indir”</b> ile <code>site-data.js</code>’i indirin.</li><li>Site klasöründeki <code>data</code> klasörüne kopyalayıp eskisinin üzerine yazın.</li><li>Yüklediğiniz görsel/dosyalar bu yolda dosyanın içine gömülür (küçük dosyalar); büyükleri <code>images/</code> ya da <code>files/</code> klasörüne elle koyup yolunu yazın.</li></ol>" +
+        '<div class="btns"><button class="b pri" data-act="download">Dosyayı indir</button></div>' +
+        "<h3>Yedek</h3>" +
+        '<p class="hint">Yedek, tüm içeriğinizi tek bir dosyada tutar. Önemli değişikliklerden önce indirin.</p>' +
+        '<div class="btns"><button class="b" data-act="exportbackup">Yedeği indir (.json)</button><label class="b" style="margin:0;font-weight:400">Yedekten yükle <input type="file" accept=".json,.js" data-import="1" hidden></label></div>' +
+        "<h3>Taslağı sil</h3>" +
+        '<p class="hint">Taslak silinirse panel, <code>data/site-data.js</code> dosyasındaki haline döner.</p>' +
+        '<div class="btns"><button class="b danger" data-act="reset">Taslağı sil ve dosyadaki haline dön</button>' +
+        (trash ? '<button class="b pri" data-act="restoretrash">↩ Son silinen taslağı geri yükle</button>' : "") + "</div>" +
+        '<p class="hint">Yönetim sayfasını (<code>admin.html</code>) herkese açık sitede yayınlamak istemezseniz yüklerken klasörden çıkarabilirsiniz; sitenin geri kalanı ona ihtiyaç duymaz.</p>';
+    }
+  };
+
+  function render() {
+    $("tabs").innerHTML = tabs.map(function (t) { return '<button data-tab="' + t[0] + '" class="' + (t[0] === tab ? "on" : "") + '">' + t[1] + "</button>"; }).join("");
+    $("panel").innerHTML = views[tab]();
+    updateDirty();
+  }
+
+  function download() {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([buildDataFile()], { type: "text/javascript" }));
+    a.download = "site-data.js"; document.body.appendChild(a); a.click(); a.remove();
+    toast("site-data.js indirildi. data klasöründeki eskisinin yerine koyun.");
+  }
+  function exportBackup() {
+    var d = new Date(), p = function (n) { return String(n).padStart(2, "0"); };
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: "application/json" }));
+    a.download = "site-yedek-" + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "-" + p(d.getHours()) + p(d.getMinutes()) + ".json";
+    document.body.appendChild(a); a.click(); a.remove(); toast("Yedek indirildi");
+  }
+  function stash() { try { localStorage.setItem(TRASH, JSON.stringify(state)); } catch (e) {} }   // geri alınabilsin diye
+
+  /* ---------- Olaylar ---------- */
+  document.addEventListener("input", function (e) {
+    var el = e.target, path = el.getAttribute("data-path");
+    if (!path) return;
+    var v = el.type === "checkbox" ? el.checked : (el.type === "number" ? (parseFloat(el.value) || 0) : el.value);
+    if (el.hasAttribute("data-list")) v = v.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    set(path, v); save();
+  });
+
+  document.addEventListener("change", async function (e) {
+    var el = e.target, f = el.files && el.files[0];
+    if (el.hasAttribute("data-bp")) { blocksPage = el.value; render(); return; }
+    if (el.hasAttribute("data-import") && f) {
+      try {
+        var txt = await f.text(), a = txt.indexOf("{"), z = txt.lastIndexOf("}");
+        var obj = JSON.parse(txt.slice(a, z + 1));
+        if (!obj || typeof obj !== "object" || !obj.settings) throw new Error("geçerli bir site yedeği değil");
+        if (!confirm("Mevcut taslağın yerine bu yedek yüklensin mi? (Şimdiki taslak 'son silinen taslak' olarak saklanır.)")) return;
+        stash(); state = Sh.normalize(obj); save(); render(); toast("Yedek yüklendi");
+      } catch (err) { toast("Yedek okunamadı: " + err.message); }
+      return;
+    }
+    var ip = el.getAttribute("data-img"), fp = el.getAttribute("data-file");
+    if (!f || (!ip && !fp)) return;
+    try {
+      if (fp) {                                                                 // belge / dosya
+        if (fsRoot) set(fp, await saveAsset(f, "files"));
+        else if (f.size <= 1.2 * 1024 * 1024) set(fp, await new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res(r.result); }; r.onerror = rej; r.readAsDataURL(f); }));
+        else { toast("Dosya büyük (" + (f.size / 1048576).toFixed(1) + " MB). 'Site klasörünü bağla' ile yükleyin ya da dosyayı files/ klasörüne elle koyup yolunu yazın."); return; }
+        var lp = fp.replace(/\.path$/, ".label");
+        if (lp !== fp && !get(lp)) set(lp, f.name.replace(/\.[^.]+$/, ""));
+        save(); render(); return;
+      }
+      /* görsel */
+      if (fsRoot) { set(ip, await saveAsset(f, "images")); save(); render(); return; }
+      var isLogo = ip === "settings.logo" || /\.logo$/.test(ip);
+      var data = await new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res(r.result); }; r.onerror = rej; r.readAsDataURL(f); });
+      if (f.type === "image/svg+xml") { set(ip, data); save(); render(); return; }
+      var img = await new Promise(function (res, rej) { var i = new Image(); i.onload = function () { res(i); }; i.onerror = rej; i.src = data; });
+      var max = isLogo ? 512 : 1400, r = Math.min(1, max / Math.max(img.width, img.height));
+      var c = document.createElement("canvas"); c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      set(ip, isLogo ? c.toDataURL("image/png") : c.toDataURL("image/jpeg", 0.82)); save(); render();
+    } catch (err) { toast("Yüklenemedi: " + (err.message || err)); }
+  });
+
+  document.addEventListener("click", async function (e) {
+    var t = e.target.closest("[data-tab]");
+    if (t) { tab = t.getAttribute("data-tab"); render(); window.scrollTo(0, 0); return; }
+    var b = e.target.closest("[data-act]"); if (!b) return;
+    var act = b.getAttribute("data-act"), path = b.getAttribute("data-path"), i = +b.getAttribute("data-i");
+    if (act === "download") { download(); return; }
+    if (act === "exportbackup") { exportBackup(); return; }
+    if (act === "connect") { await connectFolder(); render(); return; }
+    if (act === "savefolder") { await saveToFolder(); return; }
+    var sc = window.scrollY;
+    if (act === "add") { get(path).push(templates[b.getAttribute("data-tpl")]()); }
+    else if (act === "del") { if (!confirm("Silinsin mi?")) return; get(path).splice(i, 1); }
+    else if (act === "up" || act === "down") { var a = get(path), j = act === "up" ? i - 1 : i + 1; var x = a[i]; a[i] = a[j]; a[j] = x; }
+    else if (act === "clearval") { set(path, ""); }
+    else if (act === "resetfmt") { set(path, {}); }
+    else if (act === "reset") {
+      if (!confirm("Taslak silinecek ve panel, data/site-data.js dosyasındaki haline dönecek.\n\nDosyaya yazmadığınız (klasöre kaydetmediğiniz ya da indirip yerine koymadığınız) tüm değişiklikler kaybolur.\nSilmeden önce 'Yedeği indir'i öneririz. (Silinen taslağı bu sayfadan geri yükleyebilirsiniz.)\n\nDevam edilsin mi?")) return;
+      stash(); try { localStorage.removeItem(KEY); } catch (e2) {}
+      state = Sh.normalize(clone(window.SITE_DATA)); toast("Taslak silindi. Yayınla / Yedek sekmesinden geri yükleyebilirsiniz."); render(); return;
+    }
+    else if (act === "restoretrash") {
+      try { state = Sh.normalize(JSON.parse(localStorage.getItem(TRASH))); localStorage.removeItem(TRASH); save(); toast("Son silinen taslak geri yüklendi"); render(); } catch (e3) { toast("Geri yüklenemedi"); }
+      return;
+    }
+    save(); render(); window.scrollTo(0, act === "add" ? document.body.scrollHeight : sc);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); if (fsRoot) saveToFolder(); else toast("Klasör bağlı değil. Üstteki 'Dosyayı indir'i kullanın ya da klasörü bağlayın."); }
+  });
+
+  render();
+  updateFsUI();
+  if (supportsFS) {
+    idbGet("root").then(async function (h) {
+      if (!h) return; fsStored = h;
+      try { if ((await h.queryPermission({ mode: "readwrite" })) === "granted") fsRoot = h; } catch (e) {}
+      updateFsUI(); if (tab === "publish") render();
+    }).catch(function () {});
+  }
+})();
+</script>
+</body>
+</html>
