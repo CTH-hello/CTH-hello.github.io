@@ -74,8 +74,69 @@ window.SITE_DATA = {
   ],
   "capabilities": {
     "title": "Capabilities",
-    "intro": "What we do and the technologies we use to do it.",
-    "items": []
+    "intro": "From energy forecasting to solar systems and power electronics: what we do for homes, businesses and institutions.",
+    "items": [
+      {
+        "icon": "chart",
+        "title": "Energy Forecasting",
+        "text": "Solar generation and energy demand forecasts for businesses and for individual households, built with machine learning and tailored to your site and data.",
+        "tags": [
+          "Solar",
+          "Demand",
+          "Machine Learning"
+        ]
+      },
+      {
+        "icon": "bulb",
+        "title": "Solar Panel System Design",
+        "text": "Sizing and design of solar PV systems for homes, businesses and institutions, matched to real consumption and available roof or land space.",
+        "tags": [
+          "PV",
+          "Sizing",
+          "Storage"
+        ]
+      },
+      {
+        "icon": "cog",
+        "title": "Solar Panel Installation",
+        "text": "Installation of solar panel systems for homes, companies and institutions, from site survey to commissioning.",
+        "tags": [
+          "Homes",
+          "Business",
+          "Institutions"
+        ]
+      },
+      {
+        "icon": "chip",
+        "title": "Electronic Card Design",
+        "text": "Custom circuit board and electronic card design for devices, from schematic and PCB layout to prototype.",
+        "tags": [
+          "PCB",
+          "Embedded",
+          "Prototyping"
+        ]
+      },
+      {
+        "icon": "bolt",
+        "title": "Power Converters & Inverters",
+        "text": "Design of AC-AC and AC-DC converters and inverters for renewable energy and device power supply applications.",
+        "tags": [
+          "AC-AC",
+          "AC-DC",
+          "Inverters"
+        ]
+      },
+      {
+        "icon": "layers",
+        "title": "Custom Engineering Projects",
+        "text": "Project creation and delivery on request: tell us what you need and we scope, design and build it with you.",
+        "tags": [
+          "Consulting",
+          "Design",
+          "Delivery"
+        ]
+      }
+    ]
   },
   "products": {
     "title": "Products",
