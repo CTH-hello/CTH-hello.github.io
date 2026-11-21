@@ -88,8 +88,8 @@ window.SITE_DATA = {
       },
       {
         "icon": "bulb",
-        "title": "Solar Panel System Design",
-        "text": "Sizing and design of solar PV systems for homes, businesses and institutions, matched to real consumption and available roof or land space.",
+        "title": "Solar System Design & Consultancy",
+        "text": "Engineering design, sizing and feasibility studies for solar PV and storage systems for homes, businesses and institutions, matched to real consumption and available space.",
         "tags": [
           "PV",
           "Sizing",
@@ -98,12 +98,12 @@ window.SITE_DATA = {
       },
       {
         "icon": "cog",
-        "title": "Solar Panel Installation",
-        "text": "Installation of solar panel systems for homes, companies and institutions, from site survey to commissioning.",
+        "title": "Solar Project Support",
+        "text": "Site assessment, system specification and tender support, working with certified installers so that every installation meets UK standards.",
         "tags": [
-          "Homes",
-          "Business",
-          "Institutions"
+          "Feasibility",
+          "Specification",
+          "Planning"
         ]
       },
       {
