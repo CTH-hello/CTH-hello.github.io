@@ -13,7 +13,8 @@
     cursorSize: 18,
     logo: "",                // boşsa site adının ilk harfinden otomatik logo çıkar
     logoShowName: true,      // logonun yanında site adı görünsün
-    logoHeight: 32
+    logoHeight: 32,
+    statusNote: ""           // her sayfanın üstünde görünen kısa duyuru (boşsa görünmez)
   };
   var HOME_DEFAULTS = {
     heroEyebrow: "Portfolio",

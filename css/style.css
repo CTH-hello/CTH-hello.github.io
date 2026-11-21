@@ -379,3 +379,6 @@ section[id] { scroll-margin-top: 128px; }
   .nav-cta { margin-left: 4px; white-space: nowrap; }
   .brand { white-space: nowrap; }
 }
+
+/* Durum notu (kuruluş aşaması) */
+.status-bar { background: color-mix(in srgb, var(--accent) 14%, #fff); color: #15181e; padding: 8px 20px; font-size: 14px; text-align: center; border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, #fff); }

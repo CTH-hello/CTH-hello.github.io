@@ -261,7 +261,7 @@
   var views = {
     design: function () {
       return '<div class="row">' + field("Site adı (sol üstte görünür)", "settings.siteName") + field("Alt başlık", "settings.tagline") + "</div>" +
-        "<h3>Logo</h3>" + imageField("Logo", "settings.logo") +
+        field("Üstte görünen duyuru (ör. şirket kuruluş aşamasında)", "settings.statusNote", { hint: "boş bırakırsanız görünmez" }) + "<h3>Logo</h3>" + imageField("Logo", "settings.logo") +
         '<div class="hint">Boş bırakırsanız site adının ilk harfinden otomatik bir logo çıkar. Menü koyu olduğu için açık renkli ya da şeffaf arka planlı (PNG/SVG) logo en iyi sonucu verir.</div>' +
         '<div class="row">' + field("Logonun yüksekliği (px)", "settings.logoHeight", { type: "number", hint: "16–96" }) + "<div>" + field("Logonun yanında site adını göster", "settings.logoShowName", { type: "check" }) + "</div></div>" +
         "<h3>Renkler</h3>" +

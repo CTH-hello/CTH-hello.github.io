@@ -87,6 +87,7 @@
     var links = pages.filter(function (p) { return p[2] !== "contact"; });
     return '<div class="scroll-progress" aria-hidden="true"><span></span></div>' +
       (draft ? '<div class="draft-bar">Draft preview (visible only in this browser). <a href="admin.html">Back to editing</a></div>' : "") +
+      (s.statusNote ? '<div class="status-bar">' + esc(s.statusNote) + "</div>" : "") +
       '<header class="site dark"><div class="wrap">' + brand() +
       '<nav class="main" id="main-nav">' + links.map(function (n) {
         return '<a href="' + n[0] + '"' + (n[2] === activeKey ? ' class="active"' : "") + ">" + n[1] + "</a>";
