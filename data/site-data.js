@@ -1,4 +1,4 @@
-/* Updated 2026-11-21 */
+/* Updated 2026-11-22 */
 window.SITE_DATA = {
   "settings": {
     "siteName": "CircuitsTechHub",
@@ -196,13 +196,13 @@ window.SITE_DATA = {
           "No account, no ads, no tracking"
         ],
         "badge": "Free",
-        "platform": "Phone · Tablet · Computer",
-        "version": "1.1",
+        "platform": "Android · iPhone · iPad · Windows · Mac",
+        "version": "1.2",
         "image": "",
-        "file": "files/Vitalog.html",
+        "file": "",
         "downloadLabel": "Download",
-        "link": "./apps/vitalog/",
-        "linkLabel": "Open web app"
+        "link": "./apps/vitalog/?install=1",
+        "linkLabel": "Install app"
       }
     ]
   }

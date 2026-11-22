@@ -284,7 +284,7 @@
             ((p.features && p.features.length) ? '<ul class="checks">' + p.features.map(function (f) { return "<li>" + esc(f) + "</li>"; }).join("") + "</ul>" : "") +
             ((p.platform || p.version) ? '<div class="tags">' + [p.platform, p.version && "v" + p.version].filter(Boolean).map(function (t) { return '<span class="tag">' + esc(t) + "</span>"; }).join("") + "</div>" : "") +
             '<div class="btn-row" style="margin-top:8px">' + (dl ? '<a class="btn small" download href="' + esc(dl) + '">' + esc(p.downloadLabel || "Download") + "</a>" : "") +
-            (url ? '<a class="btn small ghost" target="_blank" rel="noopener" href="' + esc(url) + '">' + esc(p.linkLabel || "Learn more") + "</a>" : "") + "</div></div></article>";
+            (url ? '<a class="btn small' + (dl ? " ghost" : "") + '" target="_blank" rel="noopener" href="' + esc(url) + '">' + esc(p.linkLabel || "Learn more") + "</a>" : "") + "</div></div></article>";
         }).join("") + "</div>" : '<div class="empty">Our first apps are on the way. Check back soon.</div>') + "</div></section>";
     },
 
